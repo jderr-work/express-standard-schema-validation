@@ -1,50 +1,82 @@
-# express-joi-validation
+# express-standard-schema-validation
 
-![TravisCI](https://travis-ci.org/evanshortiss/express-joi-validation.svg)
-[![Coverage Status](https://coveralls.io/repos/github/evanshortiss/express-joi-validation/badge.svg?branch=master)](https://coveralls.io/github/evanshortiss/express-joi-validation?branch=master)
-[![npm version](https://badge.fury.io/js/express-joi-validation.svg)](https://www.npmjs.com/package/express-joi-validation)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](http://www.typescriptlang.org/)
-[![npm downloads](https://img.shields.io/npm/dm/express-joi-validation.svg?style=flat)](https://www.npmjs.com/package/express-joi-validation)
-[![Known Vulnerabilities](https://snyk.io//test/github/evanshortiss/express-joi-validation/badge.svg?targetFile=package.json)](https://snyk.io//test/github/evanshortiss/express-joi-validation?targetFile=package.json)
+This middleware started as a fork of [express-joi-validation](https://github.com/evanshortiss/express-joi-validation.git)
 
-A middleware for validating express inputs using Joi schemas. Features include:
+It is a WIP
 
-* TypeScript support.
-* Specify the order in which request inputs are validated.
-* Replaces the incoming `req.body`, `req.query`, etc and with the validated result 
-* Retains the original `req.body` inside a new property named `req.originalBody`.
-. The same applies for headers, query, and params using the `original` prefix,
-e.g `req.originalQuery`
-* Chooses sensible default Joi options for headers, params, query, and body.
-* Uses `peerDependencies` to get a Joi instance of your choosing instead of
-using a fixed version.
+A middleware for validating express inputs using [Standard Schema V1](https://github.com/standard-schema/standard-schema) compatible validation libraries. Supports **Joi**, **Zod**, **Valibot**, **Arktype**, and any other library that implements Standard Schema V1.
+
+Features include:
+
+- TypeScript support.
+- Works with multiple validation libraries through Standard Schema V1 interface.
+- Specify the order in which request inputs are validated.
+- Replaces the incoming `req.body`, `req.query`, etc with the validated result.
+- Retains the original `req.body` inside a new property named `req.originalBody`.
+  The same applies for headers, query, and params using the `original` prefix,
+  e.g `req.originalQuery`.
+- Sensible default validation options.
 
 ## Quick Links
 
-* [API](#api)
-* [Usage (JavaScript)](#usage-javascript)
-* [Usage (TypeScript)](#usage-typescript)
-* [Behaviours](#behaviours)
-  * [Joi Versioning](#joi-versioning)
-  * [Validation Ordering](#validation-ordering)
-  * [Error Handling](#error-handling)
-  * [Joi Options](#joi-options)
-  * [Custom Express Error Handler](#custom-express-error-handler)
+- [Install](#install)
+- [Supported Libraries](#supported-libraries)
+- [API](#api)
+- [Usage (JavaScript)](#usage-javascript)
+  - [Using Joi](#using-joi)
+  - [Using Zod](#using-zod)
+  - [Using Valibot](#using-valibot)
+  - [Using Arktype](#using-arktype)
+- [Usage (TypeScript)](#usage-typescript)
+- [Behaviours](#behaviours)
+  - [Validation Ordering](#validation-ordering)
+  - [Error Handling](#error-handling)
+  - [Library Options](#library-options)
+  - [Custom Express Error Handler](#custom-express-error-handler)
 
 ## Install
 
-You need to install `joi` with this module since it relies on it in
-`peerDependencies`.
-
+```bash
+npm i express-standard-validation
 ```
+
+Then install your preferred validation library:
+
+```bash
+# For Joi
+npm i joi
+
+# For Zod
+npm i zod
+
+# For Valibot
+npm i valibot
+
+# For Arktype
+npm i arktype
+```
+
+## Supported Libraries
+
+This module supports any validation library that implements [Standard Schema V1](https://github.com/standard-schema/standard-schema), including:
+
+- **Joi** v18+ (with Standard Schema support)
+- **Zod** v3.23+
+- **Valibot** v1.0+
+- **Arktype** v2.0-rc.10+
+
+Any schema passed to this middleware must have a `~standard` property with `version: 1` and a `validate` function.
 npm i express-joi-validation joi --save
-```
 
+````
 ## Example
+
 A JavaScript and TypeScript example can be found in the `example/` folder of
 this repository.
 
 ## Usage (JavaScript)
+
+### Using Joi
 
 ```js
 const Joi = require('joi')
@@ -56,52 +88,57 @@ const querySchema = Joi.object({
 })
 
 app.get('/orders', validator.query(querySchema), (req, res) => {
-  // If we're in here then the query was valid!  
+  // If we're in here then the query was valid!
   res.end(`Hello ${req.query.name}!`)
 })
 ```
 
-## Usage (TypeScript)
+### Using Zod
 
-For TypeScript a helper `ValidatedRequest` and
-`ValidatedRequestWithRawInputsAndFields` type is provided. This extends the
-`express.Request` type and allows you to pass a schema using generics to
-ensure type safety in your handler function.
+```js
+const { z } = require('zod')
+const app = require('express')()
+const validator = require('express-joi-validation').createValidator({})
 
-```ts
-import * as Joi from 'joi'
-import * as express from 'express'
-import {
-  ContainerTypes,
-  // Use this as a replacement for express.Request
-  ValidatedRequest,
-  // Extend from this to define a valid schema type/interface
-  ValidatedRequestSchema,
-  // Creates a validator that generates middlewares
-  createValidator
-} from 'express-joi-validation'
-
-const app = express()
-const validator = createValidator()
-
-const querySchema = Joi.object({
-  name: Joi.string().required()
+const querySchema = z.object({
+  name: z.string()
 })
 
-interface HelloRequestSchema extends ValidatedRequestSchema {
-  [ContainerTypes.Query]: {
-    name: string
-  }
-}
+app.get('/orders', validator.query(querySchema), (req, res) => {
+  res.end(`Hello ${req.query.name}!`)
+})
+```
 
-app.get(
-  '/hello',
-  validator.query(querySchema),
-  (req: ValidatedRequest<HelloRequestSchema>, res) => {
-    // Woohoo, type safety and intellisense for req.query!
-    res.end(`Hello ${req.query.name}!`)
-  }
-)
+### Using Valibot
+
+```js
+const v = require('valibot')
+const app = require('express')()
+const validator = require('express-joi-validation').createValidator({})
+
+const querySchema = v.object({
+  name: v.string()
+})
+
+app.get('/orders', validator.query(querySchema), (req, res) => {
+  res.end(`Hello ${req.query.name}!`)
+})
+```
+
+### Using Arktype
+
+```js
+const { type } = require('arktype')
+const app = require('express')()
+const validator = require('express-joi-validation').createValidator({})
+
+const querySchema = type({
+  name: 'string'
+})
+
+app.get('/orders', validator.query(querySchema), (req, res) => {
+  res.end(`Hello ${req.query.name}!`)
+})
 ```
 
 You can minimise some duplication by using [joi-extract-type](https://github.com/TCMiranda/joi-extract-type/).
@@ -154,35 +191,43 @@ app.get(
 
 ### Structure
 
-* module (express-joi-validation)
-  * [createValidator(config)](#createvalidatorconfig)
-    * [query(options)](#validatorqueryschema-options)
-    * [body(options)](#validatorbodyschema-options)
-    * [headers(options)](#validatorheadersschema-options)
-    * [params(options)](#validatorparamsschema-options)
-    * [response(options)](#validatorresponseschema-options)
-    * [fields(options)](#validatorfieldsschema-options)
+- module (express-joi-validation)
+  - [createValidator(config)](#createvalidatorconfig)
+    - [query(options)](#validatorqueryschema-options)
+    - [body(options)](#validatorbodyschema-options)
+    - [headers(options)](#validatorheadersschema-options)
+    - [params(options)](#validatorparamsschema-options)
+    - [response(options)](#validatorresponseschema-options)
+    - [fields(options)](#validatorfieldsschema-options)
 
 ### createValidator(config)
+
 Creates a validator. Supports the following options:
 
-* passError (default: `false`) - Passes validation errors to the express error
-hander using `next(err)` when `true`
-* statusCode (default: `400`) - The status code used when validation fails and
-`passError` is `false`.
+- passError (default: `false`) - Passes validation errors to the express error
+  hander using `next(err)` when `true`
+- statusCode (default: `400`) - The status code used when validation fails and
+  `passError` is `false`.
 
 #### validator.query(schema, [options])
+
 Creates a middleware instance that will validate the `req.query` for an
 incoming request. Can be passed `options` that override the config passed
 when the validator was created.
 
 Supported options are:
 
-* joi - Custom options to pass to `Joi.validate`.
-* passError - Same as above.
-* statusCode - Same as above.
+- libraryOptions - Custom options to pass to the validation library.
+- passError - Same as above.
+- statusCode - Same as above.
+
+**Note:** The `libraryOptions` are passed directly to the schema's validation function.
+Different libraries handle these options differently. For example, Joi uses options like
+`convert`, `allowUnknown`, while Zod ignores most options since they're configured on the
+schema itself.
 
 #### validator.body(schema, [options])
+
 Creates a middleware instance that will validate the `req.body` for an incoming
 request. Can be passed `options` that override the options passed when the
 validator was created.
@@ -190,6 +235,7 @@ validator was created.
 Supported options are the same as `validator.query`.
 
 #### validator.headers(schema, [options])
+
 Creates a middleware instance that will validate the `req.headers` for an
 incoming request. Can be passed `options` that override the options passed
 when the validator was created.
@@ -197,6 +243,7 @@ when the validator was created.
 Supported options are the same as `validator.query`.
 
 #### validator.params(schema, [options])
+
 Creates a middleware instance that will validate the `req.params` for an
 incoming request. Can be passed `options` that override the options passed
 when the validator was created.
@@ -204,6 +251,7 @@ when the validator was created.
 Supported options are the same as `validator.query`.
 
 #### validator.response(schema, [options])
+
 Creates a middleware instance that will validate the outgoing response.
 Can be passed `options` that override the options passed when the instance was
 created.
@@ -211,6 +259,7 @@ created.
 Supported options are the same as `validator.query`.
 
 #### validator.fields(schema, [options])
+
 Creates a middleware instance that will validate the fields for an incoming
 request. This is designed for use with `express-formidable`. Can be passed
 `options` that override the options passed when the validator was created.
@@ -220,14 +269,16 @@ be attached directly to the route it is related to. Here's a sample:
 
 ```js
 const schema = Joi.object({
-  id: Joi.number().integer().required()
-});
+  id: Joi.number()
+    .integer()
+    .required()
+})
 
 // INCORRECT
-app.use(validator.params(schema));
+app.use(validator.params(schema))
 app.get('/orders/:id', (req, res, next) => {
   // The "id" parameter will NOT have been validated here!
-});
+})
 
 // CORRECT
 app.get('/orders/:id', validator.params(schema), (req, res, next) => {
@@ -239,13 +290,8 @@ Supported options are the same as `validator.query`.
 
 ## Behaviours
 
-### Joi Versioning
-This module uses `peerDependencies` for the Joi version being used.
-This means whatever `joi` version is in the `dependencies` of your
-`package.json` will be used by this module.
-
-
 ### Validation Ordering
+
 Validation can be performed in a specific order using standard express
 middleware behaviour. Pass the middleware in the desired order.
 
@@ -258,12 +304,13 @@ route.get(
   validator.body(bodySchema),
   validator.query(querySchema),
   routeHandler
-);
+)
 ```
 
 ### Error Handling
+
 When validation fails, this module will default to returning a HTTP 400 with
-the Joi validation error as a `text/plain` response type.
+the validation error as a `text/plain` response type.
 
 A `passError` option is supported to override this behaviour. This option
 forces the middleware to pass the error to the express error handler using the
@@ -272,8 +319,9 @@ standard `next` function behaviour.
 See the [Custom Express Error Handler](#custom-express-error-handler) section
 for an example.
 
-### Joi Options
-It is possible to pass specific Joi options to each validator like so:
+### Library Options
+
+It is possible to pass library-specific options to each validator like so:
 
 ```js
 route.get(
@@ -281,47 +329,104 @@ route.get(
   validator.headers(
     headerSchema,
     {
-      joi: {convert: true, allowUnknown: true}
+      libraryOptions: {convert: true, allowUnknown: true}
     }
   ),
   validator.body(
     bodySchema,
     {
-      joi: {convert: true, allowUnknown: false}
+      libraryOptions: {convert: true, allowUnknown: false}
     }
-  )
+  ),
   routeHandler
 );
 ```
 
-The following sensible defaults for Joi are applied if none are passed:
+**Note:** Different validation libraries handle options differently:
+
+* **Joi**: Options like `convert`, `allowUnknown`, `stripUnknown`, `abortEarly` are passed to `Joi.validate()`.
+* **Zod**: Most validation behavior is configured on the schema itself (e.g., `.strict()`, `.passthrough()`). Library options are generally ignored.
+* **Valibot**: Similar to Zod, validation behavior is configured on the schema.
+* **Arktype**: Configuration is part of the schema definition.
+
+The following sensible defaults are applied if none are passed (primarily for Joi compatibility):
 
 #### Query
-* convert: true
-* allowUnknown: false
-* abortEarly: false
+
+- convert: true
+- allowUnknown: false
+- abortEarly: false
+
+### Joi Options Reference
+
+The following table shows how common Joi validation options map to equivalent configurations in other Standard Schema libraries:
+
+| Joi Option | Purpose | Zod Equivalent | Valibot Equivalent | Arktype Equivalent |
+|------------|---------|----------------|-------------------|-------------------|
+| `convert: true` | Coerce types (e.g., `"25"` → `25`) | `z.coerce.number()` | `v.pipe(v.unknown(), v.transform(Number))` | Built-in for many types |
+| `allowUnknown: true` | Allow extra properties | `.passthrough()` | `v.looseObject({...})` | Default behavior |
+| `allowUnknown: false` | Reject extra properties | `.strict()` | `v.object({...})` (default) | N/A (strips by default) |
+| `stripUnknown: true` | Remove extra properties | Default behavior | `v.object({...})` (default) | Default behavior |
+| `stripUnknown: false` | Keep extra properties | `.passthrough()` | `v.looseObject({...})` | Default behavior |
+| `abortEarly: true` | Stop at first error | N/A (always returns all) | Default behavior | N/A (always returns all) |
+| `abortEarly: false` | Return all errors | Default behavior | Use `.pipe()` with multiple validations | Default behavior |
+
+**Important Notes:**
+
+1. **Joi**: Options can be passed at validation time OR configured on the schema with `.options()` or schema methods like `.unknown(true)`. When using Standard Schema, prefer configuring on the schema.
+
+2. **Zod**: Validation behavior is configured on the schema itself, not at validation time:
+   ```js
+   z.object({ name: z.string() })              // Strips unknown fields
+   z.object({ name: z.string() }).strict()     // Rejects unknown fields
+   z.object({ name: z.string() }).passthrough() // Keeps unknown fields
+   z.coerce.number()                            // Type coercion
+   ```
+
+3. **Valibot**: Uses different object types for different behaviors:
+   ```js
+   v.object({ name: v.string() })              // Strict, strips unknown
+   v.looseObject({ name: v.string() })         // Allows unknown fields
+   v.pipe(v.unknown(), v.transform(Number))    // Type transformation
+   ```
+
+4. **Arktype**: Behavior is defined in the type definition:
+   ```js
+   type({ name: 'string' })                    // Strips unknown by default
+   type({ name: 'string', '...': 'unknown' })  // Allows extra properties
+   type('string.numeric')                      // Built-in parsing
+   ```
+
+#### Query
+
+- convert: true
+- allowUnknown: false
+- abortEarly: false
 
 #### Body
-* convert: true
-* allowUnknown: false
-* abortEarly: false
+
+- convert: true
+- allowUnknown: false
+- abortEarly: false
 
 #### Headers
-* convert: true
-* allowUnknown: true
-* stripUnknown: false
-* abortEarly: false
+
+- convert: true
+- allowUnknown: true
+- stripUnknown: false
+- abortEarly: false
 
 #### Route Params
-* convert: true
-* allowUnknown: false
-* abortEarly: false
+
+- convert: true
+- allowUnknown: false
+- abortEarly: false
 
 #### Fields (with express-formidable)
-* convert: true
-* allowUnknown: false
-* abortEarly: false
 
+- convert: true
+- allowUnknown: false
+- abortEarly: false
 
 ## Custom Express Error Handler
 
@@ -330,32 +435,37 @@ const validator = require('express-joi-validation').createValidator({
   // This options forces validation to pass any errors the express
   // error handler instead of generating a 400 error
   passError: true
-});
+})
 
-const app = require('express')();
-const orders = require('lib/orders');
+const app = require('express')()
+const orders = require('lib/orders')
 
-app.get('/orders', validator.query(require('./query-schema')), (req, res, next) => {
-  // if we're in here then the query was valid!
-  orders.getForQuery(req.query)
-    .then((listOfOrders) => res.json(listOfOrders))
-    .catch(next);
-});
+app.get(
+  '/orders',
+  validator.query(require('./query-schema')),
+  (req, res, next) => {
+    // if we're in here then the query was valid!
+    orders
+      .getForQuery(req.query)
+      .then(listOfOrders => res.json(listOfOrders))
+      .catch(next)
+  }
+)
 
-// After your routes add a standard express error handler. This will be passed the Joi
-// error, plus an extra "type" field so we can tell what type of validation failed
+// After your routes add a standard express error handler. This will be passed the
+// validation error, plus an extra "type" field so we can tell what type of validation failed
 app.use((err, req, res, next) => {
-  if (err && err.error && err.error.isJoi) {
-    // we had a joi error, let's return a custom 400 json response
+  if (err && err.error) {
+    // we had a validation error, let's return a custom 400 json response
     res.status(400).json({
       type: err.type, // will be "query" here, but could be "headers", "body", or "params"
       message: err.error.toString()
-    });
+    })
   } else {
     // pass on to another error handler
-    next(err);
+    next(err)
   }
-});
+})
 ```
 
 In TypeScript environments `err.type` can be verified against the exported
@@ -364,16 +474,23 @@ In TypeScript environments `err.type` can be verified against the exported
 ```ts
 import { ContainerTypes } from 'express-joi-validation'
 
-app.use((err: any|ExpressJoiError, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  // ContainerTypes is an enum exported by this module. It contains strings
-  // such as "body", "headers", "query"...
-  if (err && 'type' in err && err.type in ContainerTypes) {
-    const e: ExpressJoiError = err
-    // e.g "You submitted a bad query paramater"
-    res.status(400).end(`You submitted a bad ${e.type} paramater`)
-  } else {
-    res.status(500).end('internal server error')
+app.use(
+  (
+    err: any | ExpressJoiError,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    // ContainerTypes is an enum exported by this module. It contains strings
+    // such as "body", "headers", "query"...
+    if (err && 'type' in err && err.type in ContainerTypes) {
+      const e: ExpressJoiError = err
+      // e.g "You submitted a bad query paramater"
+      res.status(400).end(`You submitted a bad ${e.type} paramater`)
+    } else {
+      res.status(500).end('internal server error')
+    }
   }
-})
+)
 ```
-
+````
