@@ -108,12 +108,21 @@ describe('express joi', function() {
         .required()
     })
 
-    mod = require('./express-joi-validation.js').createValidator()
+    mod = require('./express-standard-schema-validation.js').createValidator()
   })
 
   describe('#headers', function() {
     it('should return a 200 since our request is valid', function(done) {
-      const mw = mod.headers(schema)
+      // Headers require .unknown(true) since requests have many built-in headers
+      const headerSchema = Joi.object({
+        key: Joi.number()
+          .integer()
+          .min(1)
+          .max(10)
+          .required()
+      }).unknown(true)
+
+      const mw = mod.headers(headerSchema)
 
       getRequester(mw)
         .get('/headers-check')
@@ -123,7 +132,15 @@ describe('express joi', function() {
     })
 
     it('should return a 400 since our request is invalid', function(done) {
-      const mw = mod.headers(schema)
+      const headerSchema = Joi.object({
+        key: Joi.number()
+          .integer()
+          .min(1)
+          .max(10)
+          .required()
+      }).unknown(true)
+
+      const mw = mod.headers(headerSchema)
 
       getRequester(mw)
         .get('/headers-check')
@@ -268,9 +285,11 @@ describe('express joi', function() {
 
   describe('optional configs', function() {
     it('should call next on error via config.passError', function(done) {
-      const mod = require('./express-joi-validation.js').createValidator({
-        passError: true
-      })
+      const mod = require('./express-standard-schema-validation.js').createValidator(
+        {
+          passError: true
+        }
+      )
       const mw = mod.query(
         Joi.object({
           key: Joi.string()
@@ -290,15 +309,17 @@ describe('express joi', function() {
 
   describe('#joiGlobalOptionMerging.', function() {
     it('should return a 200 since our body is valid', function(done) {
-      const mod = require('./express-joi-validation.js').createValidator({
-        passError: true,
-        joi: {
-          allowUnknown: true
+      // Note: With Standard Schema, options like allowUnknown should be configured
+      // on the schema itself (e.g., .unknown(true)) rather than as validation options.
+      // This aligns with how other Standard Schema libraries (Zod, Valibot, etc.) work.
+      const mod = require('./express-standard-schema-validation.js').createValidator(
+        {
+          passError: true
         }
-      })
+      )
       const schema = Joi.object({
         known: Joi.boolean().required()
-      })
+      }).unknown(true) // Configure unknown fields on the schema
 
       const mw = mod.body(schema)
 
