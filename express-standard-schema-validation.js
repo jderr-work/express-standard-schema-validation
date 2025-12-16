@@ -7,9 +7,7 @@
  *
  * Note: Different libraries handle these options differently:
  * - Joi: Uses all these options natively
- * - Zod: May ignore these options (configure in schema with .passthrough(), .strict(), etc.)
- * - Valibot: May ignore these options (configure in schema with looseObject(), strictObject(), etc.)
- * - Arktype: May ignore these options (configure in schema definition)
+ * - Zod: Ignores these options (configure in schema with .passthrough(), .strict(), .coerce, etc.)
  */
 const containers = {
   query: {

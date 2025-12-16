@@ -4,7 +4,7 @@ This middleware started as a fork of [express-joi-validation](https://github.com
 
 It is a WIP
 
-A middleware for validating express inputs using [Standard Schema V1](https://github.com/standard-schema/standard-schema) compatible validation libraries. Supports **Joi**, **Zod**, **Valibot**, **Arktype**, and any other library that implements Standard Schema V1.
+A middleware for validating express inputs using [Standard Schema V1](https://github.com/standard-schema/standard-schema) compatible validation libraries. Supports **Joi** and **Zod**.
 
 Features include:
 
@@ -25,8 +25,6 @@ Features include:
 - [Usage (JavaScript)](#usage-javascript)
   - [Using Joi](#using-joi)
   - [Using Zod](#using-zod)
-  - [Using Valibot](#using-valibot)
-  - [Using Arktype](#using-arktype)
 - [Usage (TypeScript)](#usage-typescript)
 - [Behaviours](#behaviours)
   - [Validation Ordering](#validation-ordering)
@@ -48,27 +46,27 @@ npm i joi
 
 # For Zod
 npm i zod
+```
 
-# For Valibot
-npm i valibot
+Then install your preferred validation library:
 
-# For Arktype
-npm i arktype
+```bash
+# For Joi
+npm i joi
+
+# For Zod
+npm i zod
 ```
 
 ## Supported Libraries
 
-This module supports any validation library that implements [Standard Schema V1](https://github.com/standard-schema/standard-schema), including:
+This module supports validation libraries that implement [Standard Schema V1](https://github.com/standard-schema/standard-schema):
 
 - **Joi** v18+ (with Standard Schema support)
 - **Zod** v3.23+
-- **Valibot** v1.0+
-- **Arktype** v2.0-rc.10+
 
 Any schema passed to this middleware must have a `~standard` property with `version: 1` and a `validate` function.
-npm i express-joi-validation joi --save
 
-````
 ## Example
 
 A JavaScript and TypeScript example can be found in the `example/` folder of
@@ -102,38 +100,6 @@ const validator = require('express-joi-validation').createValidator({})
 
 const querySchema = z.object({
   name: z.string()
-})
-
-app.get('/orders', validator.query(querySchema), (req, res) => {
-  res.end(`Hello ${req.query.name}!`)
-})
-```
-
-### Using Valibot
-
-```js
-const v = require('valibot')
-const app = require('express')()
-const validator = require('express-joi-validation').createValidator({})
-
-const querySchema = v.object({
-  name: v.string()
-})
-
-app.get('/orders', validator.query(querySchema), (req, res) => {
-  res.end(`Hello ${req.query.name}!`)
-})
-```
-
-### Using Arktype
-
-```js
-const { type } = require('arktype')
-const app = require('express')()
-const validator = require('express-joi-validation').createValidator({})
-
-const querySchema = type({
-  name: 'string'
 })
 
 app.get('/orders', validator.query(querySchema), (req, res) => {
@@ -326,28 +292,20 @@ It is possible to pass library-specific options to each validator like so:
 ```js
 route.get(
   '/tickets',
-  validator.headers(
-    headerSchema,
-    {
-      libraryOptions: {convert: true, allowUnknown: true}
-    }
-  ),
-  validator.body(
-    bodySchema,
-    {
-      libraryOptions: {convert: true, allowUnknown: false}
-    }
-  ),
+  validator.headers(headerSchema, {
+    libraryOptions: { convert: true, allowUnknown: true }
+  }),
+  validator.body(bodySchema, {
+    libraryOptions: { convert: true, allowUnknown: false }
+  }),
   routeHandler
-);
+)
 ```
 
 **Note:** Different validation libraries handle options differently:
 
-* **Joi**: Options like `convert`, `allowUnknown`, `stripUnknown`, `abortEarly` are passed to `Joi.validate()`.
-* **Zod**: Most validation behavior is configured on the schema itself (e.g., `.strict()`, `.passthrough()`). Library options are generally ignored.
-* **Valibot**: Similar to Zod, validation behavior is configured on the schema.
-* **Arktype**: Configuration is part of the schema definition.
+- **Joi**: Options like `convert`, `allowUnknown`, `stripUnknown`, `abortEarly` are passed to `Joi.validate()`. However, with Standard Schema, it's recommended to configure these on the schema itself using `.unknown()`, `.options()`, etc.
+- **Zod**: Most validation behavior is configured on the schema itself (e.g., `.strict()`, `.passthrough()`). Library options are generally ignored.
 
 The following sensible defaults are applied if none are passed (primarily for Joi compatibility):
 
@@ -357,45 +315,49 @@ The following sensible defaults are applied if none are passed (primarily for Jo
 - allowUnknown: false
 - abortEarly: false
 
-### Joi Options Reference
+### Joi to Zod Migration Reference
 
-The following table shows how common Joi validation options map to equivalent configurations in other Standard Schema libraries:
+The following table shows how common Joi validation options map to Zod configurations:
 
-| Joi Option | Purpose | Zod Equivalent | Valibot Equivalent | Arktype Equivalent |
-|------------|---------|----------------|-------------------|-------------------|
-| `convert: true` | Coerce types (e.g., `"25"` → `25`) | `z.coerce.number()` | `v.pipe(v.unknown(), v.transform(Number))` | Built-in for many types |
-| `allowUnknown: true` | Allow extra properties | `.passthrough()` | `v.looseObject({...})` | Default behavior |
-| `allowUnknown: false` | Reject extra properties | `.strict()` | `v.object({...})` (default) | N/A (strips by default) |
-| `stripUnknown: true` | Remove extra properties | Default behavior | `v.object({...})` (default) | Default behavior |
-| `stripUnknown: false` | Keep extra properties | `.passthrough()` | `v.looseObject({...})` | Default behavior |
-| `abortEarly: true` | Stop at first error | N/A (always returns all) | Default behavior | N/A (always returns all) |
-| `abortEarly: false` | Return all errors | Default behavior | Use `.pipe()` with multiple validations | Default behavior |
+| Joi Option            | Purpose                            | Zod Equivalent           |
+| --------------------- | ---------------------------------- | ------------------------ |
+| `convert: true`       | Coerce types (e.g., `"25"` → `25`) | `z.coerce.number()`      |
+| `allowUnknown: true`  | Allow extra properties             | `.passthrough()`         |
+| `allowUnknown: false` | Reject extra properties            | `.strict()`              |
+| `stripUnknown: true`  | Remove extra properties            | Default behavior         |
+| `stripUnknown: false` | Keep extra properties              | `.passthrough()`         |
+| `abortEarly: true`    | Stop at first error                | N/A (always returns all) |
+| `abortEarly: false`   | Return all errors                  | Default behavior         |
 
-**Important Notes:**
+**Examples:**
 
-1. **Joi**: Options can be passed at validation time OR configured on the schema with `.options()` or schema methods like `.unknown(true)`. When using Standard Schema, prefer configuring on the schema.
+```js
+// Joi: Convert string to number
+Joi.number() // with { convert: true } option
 
-2. **Zod**: Validation behavior is configured on the schema itself, not at validation time:
-   ```js
-   z.object({ name: z.string() })              // Strips unknown fields
-   z.object({ name: z.string() }).strict()     // Rejects unknown fields
-   z.object({ name: z.string() }).passthrough() // Keeps unknown fields
-   z.coerce.number()                            // Type coercion
-   ```
+// Zod: Coerce string to number
+z.coerce.number()
 
-3. **Valibot**: Uses different object types for different behaviors:
-   ```js
-   v.object({ name: v.string() })              // Strict, strips unknown
-   v.looseObject({ name: v.string() })         // Allows unknown fields
-   v.pipe(v.unknown(), v.transform(Number))    // Type transformation
-   ```
+// Joi: Allow unknown fields
+Joi.object({ name: Joi.string() }).unknown(true)
 
-4. **Arktype**: Behavior is defined in the type definition:
-   ```js
-   type({ name: 'string' })                    // Strips unknown by default
-   type({ name: 'string', '...': 'unknown' })  // Allows extra properties
-   type('string.numeric')                      // Built-in parsing
-   ```
+// Zod: Allow unknown fields
+z.object({ name: z.string() }).passthrough()
+
+// Joi: Reject unknown fields (throw error)
+Joi.object({ name: Joi.string() }) // with { allowUnknown: false }
+
+// Zod: Reject unknown fields (throw error)
+z.object({ name: z.string() }).strict()
+
+// Joi: Strip unknown fields (default with allowUnknown: false)
+Joi.object({ name: Joi.string() }).options({ stripUnknown: true })
+
+// Zod: Strip unknown fields (default behavior)
+z.object({ name: z.string() })
+```
+
+**Important Note:** With Standard Schema, Joi options should be configured on the schema itself (using `.unknown()`, `.options()`, etc.) rather than passed at validation time. This aligns with how Zod works and makes migrations easier.
 
 #### Query
 
@@ -490,7 +452,7 @@ app.use(
     } else {
       res.status(500).end('internal server error')
     }
+    w
   }
 )
 ```
-````
