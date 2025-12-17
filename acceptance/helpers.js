@@ -6,21 +6,17 @@
  * @returns {Promise<any>}
  */
 export async function expectSuccess(response, expectedStatus = 200) {
-  response = await response
+  response = await response;
   if (response.status !== expectedStatus) {
-    const text = await response.text()
-    throw new Error(
-      `Expected status ${expectedStatus}, got ${
-        response.status
-      }. Response: ${text}`
-    )
+    const text = await response.text();
+    throw new Error(`Expected status ${expectedStatus}, got ${response.status}. Response: ${text}`);
   }
   // Try to parse as JSON, fall back to text
-  const contentType = response.headers.get('content-type')
+  const contentType = response.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
-    return response.json()
+    return response.json();
   }
-  return response.text()
+  return response.text();
 }
 
 /**
@@ -31,17 +27,15 @@ export async function expectSuccess(response, expectedStatus = 200) {
  * @returns {Promise<string>}
  */
 export async function expectValidationError(response, expectedStatus = 400) {
-  response = await response
+  response = await response;
   if (response.status !== expectedStatus) {
-    throw new Error(`Expected status ${expectedStatus}, got ${response.status}`)
+    throw new Error(`Expected status ${expectedStatus}, got ${response.status}`);
   }
-  const text = await response.text()
+  const text = await response.text();
   if (!text.includes('Error validating request')) {
-    throw new Error(
-      `Response does not contain 'Error validating request': ${text}`
-    )
+    throw new Error(`Response does not contain 'Error validating request': ${text}`);
   }
-  return text
+  return text;
 }
 
 /**
@@ -53,11 +47,9 @@ export async function expectValidationError(response, expectedStatus = 400) {
  * @returns {Promise<Response>}
  */
 export async function get(baseUrl, path, params = {}) {
-  const queryString = new URLSearchParams(params).toString()
-  const fullUrl = queryString
-    ? `${baseUrl}${path}?${queryString}`
-    : `${baseUrl}${path}`
-  return fetch(fullUrl)
+  const queryString = new URLSearchParams(params).toString();
+  const fullUrl = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
+  return fetch(fullUrl);
 }
 
 /**
@@ -72,8 +64,8 @@ export async function post(baseUrl, path, body) {
   return fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
+    body: JSON.stringify(body),
+  });
 }
 
 /**
@@ -86,11 +78,9 @@ export async function post(baseUrl, path, body) {
  * @returns {Promise<Response>}
  */
 export async function getWithHeaders(baseUrl, path, params = {}, headers = {}) {
-  const queryString = new URLSearchParams(params).toString()
-  const fullUrl = queryString
-    ? `${baseUrl}${path}?${queryString}`
-    : `${baseUrl}${path}`
-  return fetch(fullUrl, { headers })
+  const queryString = new URLSearchParams(params).toString();
+  const fullUrl = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
+  return fetch(fullUrl, { headers });
 }
 
 /**
@@ -102,12 +92,12 @@ export async function getWithHeaders(baseUrl, path, params = {}, headers = {}) {
  * @returns {Promise<Response>}
  */
 export async function postFormData(baseUrl, path, fields) {
-  const formData = new FormData()
+  const formData = new FormData();
   for (const [key, value] of Object.entries(fields)) {
-    formData.append(key, value)
+    formData.append(key, value);
   }
   return fetch(`${baseUrl}${path}`, {
     method: 'POST',
-    body: formData
-  })
+    body: formData,
+  });
 }

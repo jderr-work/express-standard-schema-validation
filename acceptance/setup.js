@@ -1,5 +1,5 @@
-import express from 'express'
-import bodyParser from 'body-parser'
+import express from 'express';
+import bodyParser from 'body-parser';
 
 /**
  * Creates an Express app with optional error handling configuration
@@ -8,17 +8,17 @@ import bodyParser from 'body-parser'
  * @returns {express.Application}
  */
 export const createTestApp = (options = {}) => {
-  const app = express()
-  app.use(bodyParser.json())
+  const app = express();
+  app.use(bodyParser.json());
 
   // Global error handler for passError tests - MUST be after routes
   if (options.passError) {
     // Store a flag so we know to add error handler after routes
-    app.set('needsErrorHandler', true)
+    app.set('needsErrorHandler', true);
   }
 
-  return app
-}
+  return app;
+};
 
 /**
  * Starts a test server on random available port
@@ -27,7 +27,7 @@ export const createTestApp = (options = {}) => {
  * @param {express.Application} app
  * @returns {Promise<{server: http.Server, port: number, baseUrl: string}>}
  */
-export const startTestServer = async app => {
+export const startTestServer = async (app) => {
   // Add error handler AFTER all routes have been added
   if (app.get('needsErrorHandler')) {
     app.use((err, req, res, next) => {
@@ -35,23 +35,23 @@ export const startTestServer = async app => {
         error: 'validation failed',
         details: {
           type: err.type,
-          issues: err.issues
-        }
-      })
-    })
+          issues: err.issues,
+        },
+      });
+    });
   }
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const server = app.listen(0, () => {
-      const port = server.address().port
+      const port = server.address().port;
       resolve({
         server,
         port,
-        baseUrl: `http://localhost:${port}`
-      })
-    })
-  })
-}
+        baseUrl: `http://localhost:${port}`,
+      });
+    });
+  });
+};
 
 /**
  * Stops a test server
@@ -59,11 +59,11 @@ export const startTestServer = async app => {
  * @param {http.Server} server
  * @returns {Promise<void>}
  */
-export const stopTestServer = server => {
+export const stopTestServer = (server) => {
   return new Promise((resolve, reject) => {
-    server.close(err => {
-      if (err) reject(err)
-      else resolve()
-    })
-  })
-}
+    server.close((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
