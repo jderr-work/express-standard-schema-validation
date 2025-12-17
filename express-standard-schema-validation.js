@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Storage properties for each container type.
  * The original (pre-validation) values are stored in these properties.
@@ -30,7 +28,7 @@ const containers = {
  * @param {*} schema - The schema to check
  * @returns {boolean} - True if the schema implements Standard Schema V1
  */
-function isStandardSchema(schema) {
+const isStandardSchema = schema => {
   return (
     schema &&
     (typeof schema === 'object' || typeof schema === 'function') &&
@@ -47,7 +45,7 @@ function isStandardSchema(schema) {
  * @param {*} schema - The schema to validate
  * @throws {Error} If the schema does not implement Standard Schema V1
  */
-function assertStandardSchema(schema) {
+const assertStandardSchema = schema => {
   if (!isStandardSchema(schema)) {
     throw new Error(
       'Invalid schema: must implement Standard Schema V1 interface.'
@@ -61,7 +59,7 @@ function assertStandardSchema(schema) {
  * @param {string} container - The container being validated (e.g., "query", "body")
  * @returns {string} - Formatted error message
  */
-function buildErrorString(issues, container) {
+const buildErrorString = (issues, container) => {
   let ret = `Error validating ${container}.`
 
   for (let i = 0; i < issues.length; i++) {
@@ -78,7 +76,7 @@ function buildErrorString(issues, container) {
  * @param {number} cfg.statusCode - Default status code for validation failures
  * @returns {object} - Validator instance with middleware generator methods
  */
-module.exports.createValidator = function generateValidatorInstance(cfg) {
+export const createValidator = cfg => {
   cfg = cfg || {} // default to an empty config
 
   // We'll return this instance of the middleware

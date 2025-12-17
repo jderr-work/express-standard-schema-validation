@@ -1,7 +1,5 @@
-'use strict'
-
-const express = require('express')
-const bodyParser = require('body-parser')
+import express from 'express'
+import bodyParser from 'body-parser'
 
 /**
  * Creates an Express app with optional error handling configuration
@@ -9,7 +7,7 @@ const bodyParser = require('body-parser')
  * @param {{passError?: boolean}} options
  * @returns {express.Application}
  */
-function createTestApp(options = {}) {
+export const createTestApp = (options = {}) => {
   const app = express()
   app.use(bodyParser.json())
 
@@ -29,7 +27,7 @@ function createTestApp(options = {}) {
  * @param {express.Application} app
  * @returns {Promise<{server: http.Server, port: number, baseUrl: string}>}
  */
-async function startTestServer(app) {
+export const startTestServer = async app => {
   // Add error handler AFTER all routes have been added
   if (app.get('needsErrorHandler')) {
     app.use((err, req, res, next) => {
@@ -61,17 +59,11 @@ async function startTestServer(app) {
  * @param {http.Server} server
  * @returns {Promise<void>}
  */
-function stopTestServer(server) {
+export const stopTestServer = server => {
   return new Promise((resolve, reject) => {
     server.close(err => {
       if (err) reject(err)
       else resolve()
     })
   })
-}
-
-module.exports = {
-  createTestApp,
-  startTestServer,
-  stopTestServer
 }

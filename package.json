@@ -40,11 +40,12 @@
     "@types/express-formidable": "~1.0.4",
     "@types/node": "^18.19.68",
     "@types/qs": "~6.9.3",
-    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/coverage-v8": "^4.0.16",
     "arktype": "^2.0.0-rc.8",
     "body-parser": "1.20.3",
     "chance": "^1.1.12",
     "clear-require": "~2.0.0",
+    "eslint": "^9.39.2",
     "express": "~4.17.3",
     "express-formidable": "~1.0.0",
     "husky": "~1.0.1",
@@ -57,7 +58,7 @@
     "qs": "~6.9.4",
     "typescript": "^5.7.2",
     "valibot": "^1.2.0",
-    "vitest": "^2.1.0",
+    "vitest": "^4.0.16",
     "zod": "^3.23.0"
   },
   "peerDependencies": {
@@ -78,7 +79,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "directories": {
     "example": "example"
