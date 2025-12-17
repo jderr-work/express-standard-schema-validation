@@ -1,58 +1,27 @@
 'use strict'
 
 /**
- * Default library options for each container type.
- * These options are primarily for Joi compatibility but are passed as
- * libraryOptions to any Standard Schema implementation.
- *
- * Note: Different libraries handle these options differently:
- * - Joi: Uses all these options natively
- * - Zod: Ignores these options (configure in schema with .passthrough(), .strict(), .coerce, etc.)
+ * Storage properties for each container type.
+ * The original (pre-validation) values are stored in these properties.
  */
 const containers = {
   query: {
-    storageProperty: 'originalQuery',
-    options: {
-      convert: true,
-      allowUnknown: false,
-      abortEarly: false
-    }
+    storageProperty: 'originalQuery'
   },
   // For use with body-parser
   body: {
-    storageProperty: 'originalBody',
-    options: {
-      convert: true,
-      allowUnknown: false,
-      abortEarly: false
-    }
+    storageProperty: 'originalBody'
   },
   headers: {
-    storageProperty: 'originalHeaders',
-    options: {
-      convert: true,
-      allowUnknown: true,
-      stripUnknown: false,
-      abortEarly: false
-    }
+    storageProperty: 'originalHeaders'
   },
   // URL params e.g "/users/:userId"
   params: {
-    storageProperty: 'originalParams',
-    options: {
-      convert: true,
-      allowUnknown: false,
-      abortEarly: false
-    }
+    storageProperty: 'originalParams'
   },
   // For use with express-formidable or similar POST body parser for forms
   fields: {
-    storageProperty: 'originalFields',
-    options: {
-      convert: true,
-      allowUnknown: false,
-      abortEarly: false
-    }
+    storageProperty: 'originalFields'
   }
 }
 
@@ -82,7 +51,7 @@ function assertStandardSchema(schema) {
   if (!isStandardSchema(schema)) {
     throw new Error(
       'Invalid schema: must implement Standard Schema V1 interface. ' +
-        'Supported libraries include Joi >= 18.0.0, Zod >= 3.23, Arktype >= 2.0.0-beta, and Valibot >= 0.31.0'
+        'Supported libraries include Joi >= 18.0.0, Zod >= 3.23, ArkType >= 2.0.0-rc, and Valibot >= 1.0.0'
     )
   }
 }
@@ -108,16 +77,10 @@ function buildErrorString(issues, container) {
  * @param {object} cfg - Configuration options
  * @param {boolean} cfg.passError - Whether to pass validation errors to Express error handler
  * @param {number} cfg.statusCode - Default status code for validation failures
- * @param {object} cfg.options - Default library options passed to all validations
  * @returns {object} - Validator instance with middleware generator methods
  */
 module.exports.createValidator = function generateValidatorInstance(cfg) {
   cfg = cfg || {} // default to an empty config
-
-  // Backward compatibility: map old 'joi' config to 'options'
-  if (cfg.joi && !cfg.options) {
-    cfg.options = cfg.joi
-  }
 
   // We'll return this instance of the middleware
   const instance = {
@@ -134,24 +97,9 @@ module.exports.createValidator = function generateValidatorInstance(cfg) {
 
       opts = opts || {} // like config, default to empty object
 
-      // Backward compatibility: map old 'joi' option to 'options'
-      if (opts.joi && !opts.options) {
-        opts.options = opts.joi
-      }
-
-      const computedOpts = {
-        ...container.options,
-        ...cfg.options,
-        ...opts.options
-      }
-
       return function expressStandardSchemaValidator(req, res, next) {
         // Use Standard Schema's validate method
-        Promise.resolve(
-          schema['~standard'].validate(req[type], {
-            libraryOptions: computedOpts
-          })
-        )
+        Promise.resolve(schema['~standard'].validate(req[type]))
           .then(result => {
             if (!result.issues) {
               // Validation succeeded
@@ -211,11 +159,7 @@ module.exports.createValidator = function generateValidatorInstance(cfg) {
       next()
 
       function validateJson(json) {
-        Promise.resolve(
-          schema['~standard'].validate(json, {
-            libraryOptions: opts.options || {}
-          })
-        )
+        Promise.resolve(schema['~standard'].validate(json))
           .then(result => {
             if (!result.issues) {
               // Validation succeeded - return validated value

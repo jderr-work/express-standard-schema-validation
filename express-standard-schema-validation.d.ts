@@ -140,31 +140,12 @@ export interface ExpressValidatorConfig {
    * Whether to pass validation errors to Express error handler
    */
   passError?: boolean
-  /**
-   * Default library options passed to all validations.
-   *
-   * Note: These options are primarily for Joi compatibility.
-   * Different libraries handle these options differently:
-   * - Joi: Uses all these options natively
-   * - Zod: May ignore these options (configure in schema with .passthrough(), .strict(), etc.)
-   * - Valibot: May ignore these options (configure in schema with looseObject(), strictObject(), etc.)
-   * - Arktype: May ignore these options (configure in schema definition)
-   */
-  options?: Record<string, unknown>
 }
 
 /**
  * Configuration options supported by middleware, e.g *validator.body(config)*
  */
 export interface ExpressValidatorContainerConfig {
-  /**
-   * Library-specific validation options.
-   * These are passed as libraryOptions to Standard Schema validate() method.
-   *
-   * Note: Different libraries handle these options differently.
-   * See ExpressValidatorConfig.options for more details.
-   */
-  options?: Record<string, unknown>
   /**
    * Status code for validation failure
    */

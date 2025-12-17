@@ -5,7 +5,10 @@ const port = 3030
 import express from 'express'
 import * as Joi from 'joi'
 import HelloWorld from './route'
-import { createValidator, ExpressJoiError } from '../../express-joi-validation'
+import {
+  createValidator,
+  ExpressValidatorError
+} from '../../express-standard-schema-validation'
 
 const app = express()
 const validator = createValidator()
@@ -28,15 +31,15 @@ app.use('/hello', HelloWorld)
 // Custom error handler
 app.use(
   (
-    err: any | ExpressJoiError,
+    err: any | ExpressValidatorError,
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
-    if (err && err.error && err.error.isJoi) {
-      const e: ExpressJoiError = err
+    if (err && err.type && err.issues) {
+      const e: ExpressValidatorError = err
       // e.g "you submitted a bad query"
-      res.status(400).end(`You submitted a bad ${e.type} paramater.`)
+      res.status(400).end(`You submitted a bad ${e.type} parameter.`)
     } else {
       res.status(500).end('internal server error')
     }

@@ -6,7 +6,7 @@ import {
   ValidatedRequestSchema,
   createValidator,
   ContainerTypes
-} from '../../express-joi-validation'
+} from '../../express-standard-schema-validation'
 import { Router } from 'express'
 
 const route = Router()

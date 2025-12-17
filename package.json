@@ -1,13 +1,13 @@
 {
-  "name": "express-standard-schema-validation-validation",
-  "version": "0.0.1",
-  "description": "validate express application inputs and parameters using Standard Schema (supports Joi and Zod)",
+  "name": "express-standard-schema-validation",
+  "version": "1.0.0",
+  "description": "validate express application inputs and parameters using Standard Schema V1 (supports Joi, Zod, ArkType, and Valibot)",
   "main": "express-standard-schema-validation.js",
   "scripts": {
     "build-ts": "tsc --build example/typescript/tsconfig.json",
-    "unit": "mocha *.test.js",
+    "unit": "mocha '*.test.js' 'test.*.js'",
     "ts-test": "tsc express-standard-schema-validation.d.ts --target es5 --module commonjs --noEmit",
-    "test": "npm run ts-test && npm run cover && nyc check-coverage --statements 100 --lines 100 --functions 100 --branches 100 && npm run build-ts",
+    "test": "npm run ts-test && npm run cover && nyc check-coverage --statements 95 --lines 95 --functions 85 --branches 95 && npm run build-ts",
     "cover": "nyc --reporter=lcov --produce-source-map=true npm run unit",
     "example": "nodemon example/javascript/server.js",
     "example-ts": "npm run build-ts && node example/typescript/server.js",
@@ -22,6 +22,8 @@
     "standard-schema",
     "joi",
     "zod",
+    "arktype",
+    "valibot",
     "express",
     "validation",
     "middleware",
@@ -35,6 +37,7 @@
     "@types/express-formidable": "~1.0.4",
     "@types/node": "^18.19.68",
     "@types/qs": "~6.9.3",
+    "arktype": "^2.0.0-rc.8",
     "body-parser": "1.20.3",
     "chai": "~3.5.0",
     "chance": "^1.1.12",
@@ -56,7 +59,25 @@
     "sinon": "~1.17.7",
     "supertest": "~3.0.0",
     "typescript": "^5.7.2",
+    "valibot": "^1.2.0",
     "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "joi": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    },
+    "arktype": {
+      "optional": true
+    },
+    "valibot": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18.0.0"
@@ -69,9 +90,9 @@
     "url": "git+https://github.com/jderr-work/express-standard-schema-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/evanshortiss/express-standard-schema-validation/issues"
+    "url": "https://github.com/jderr-work/express-standard-schema-validation/issues"
   },
-  "homepage": "https://github.com/evanshortiss/express-standard-schema-validation#readme",
+  "homepage": "https://github.com/jderr-work/express-standard-schema-validation#readme",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"

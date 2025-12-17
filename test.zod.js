@@ -9,8 +9,10 @@ describe('express-joi-validation with Zod >= 3.23', function() {
   let mod
 
   beforeEach(function() {
-    delete require.cache[require.resolve('../express-joi-validation')]
-    mod = require('../express-joi-validation')
+    delete require.cache[
+      require.resolve('./express-standard-schema-validation')
+    ]
+    mod = require('./express-standard-schema-validation')
   })
 
   describe('Zod Standard Schema Support', function() {
