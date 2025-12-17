@@ -50,8 +50,7 @@ function isStandardSchema(schema) {
 function assertStandardSchema(schema) {
   if (!isStandardSchema(schema)) {
     throw new Error(
-      'Invalid schema: must implement Standard Schema V1 interface. ' +
-        'Supported libraries include Joi >= 18.0.0, Zod >= 3.23, ArkType >= 2.0.0-rc, and Valibot >= 1.0.0'
+      'Invalid schema: must implement Standard Schema V1 interface.'
     )
   }
 }
@@ -99,11 +98,11 @@ module.exports.createValidator = function generateValidatorInstance(cfg) {
 
       return function expressStandardSchemaValidator(req, res, next) {
         // Use Standard Schema's validate method
-        Promise.resolve(schema['~standard'].validate(req[type]))
+        return Promise.resolve(schema['~standard'].validate(req[type]))
           .then(result => {
             if (!result.issues) {
               // Validation succeeded
-              req[container.storageProperty] = req[type]
+              req[container.storageProperty] = { ...req[type] }
               const descriptor = Object.getOwnPropertyDescriptor(req, type)
               if (descriptor && descriptor.writable) {
                 req[type] = result.value
@@ -128,7 +127,8 @@ module.exports.createValidator = function generateValidatorInstance(cfg) {
                 type: type,
                 error: errorObj,
                 value: req[type],
-                issues: result.issues
+                issues: result.issues,
+                statusCode: opts.statusCode || cfg.statusCode || 400
               }
               next(err)
             } else {
@@ -159,7 +159,7 @@ module.exports.createValidator = function generateValidatorInstance(cfg) {
       next()
 
       function validateJson(json) {
-        Promise.resolve(schema['~standard'].validate(json))
+        return Promise.resolve(schema['~standard'].validate(json))
           .then(result => {
             if (!result.issues) {
               // Validation succeeded - return validated value
