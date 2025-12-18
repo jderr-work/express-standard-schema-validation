@@ -29,7 +29,7 @@ export const createTestApp = (options = {}) => {
 export const startTestServer = async (app) => {
   // Add error handler AFTER all routes have been added
   if (app.get('needsErrorHandler')) {
-    app.use((err, req, res, next) => {
+    app.use((err, _req, res, _next) => {
       res.status(err.statusCode || 400).json({
         error: 'validation failed',
         details: {

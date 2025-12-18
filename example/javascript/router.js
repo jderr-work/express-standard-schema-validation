@@ -67,7 +67,7 @@ const bodySchema = Joi.object({
 });
 
 route.post('/', express.json(), validator.body(bodySchema), (req, res) => {
-  console.log(`\Creating user with data ${JSON.stringify(req.body)}.`);
+  console.log(`Creating user with data ${JSON.stringify(req.body)}.`);
   console.log(`req.body was ${JSON.stringify(req.originalBody)} before validation`);
   console.log(`req.body is ${JSON.stringify(req.body)} after validation`);
   console.log('note that the age was correctly cast to an integer if it was a string\n');

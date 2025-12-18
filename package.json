@@ -19,6 +19,7 @@
     "format:check": "prettier --check \"**/*.{js,ts,json}\" --ignore-path .gitignore"
   },
   "typings": "express-standard-schema-validation.d.ts",
+  "type": "module",
   "files": [
     "express-standard-schema-validation.js",
     "express-standard-schema-validation.d.ts"
