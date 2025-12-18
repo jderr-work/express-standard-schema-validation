@@ -2,7 +2,6 @@ import express from 'express';
 import users from './users.js';
 import { z } from 'zod';
 import _ from 'lodash';
-import bodyParser from 'body-parser';
 import { createValidator } from '../../express-standard-schema-validation.js';
 
 const route = express.Router();
@@ -67,7 +66,7 @@ const bodySchema = z.object({
   age: z.coerce.number().int().min(1).max(120),
 });
 
-route.post('/', bodyParser.json(), validator.body(bodySchema), (req, res) => {
+route.post('/', express.json(), validator.body(bodySchema), (req, res) => {
   console.log(`\nCreating user with data ${JSON.stringify(req.body)}.`);
   console.log(`req.body was ${JSON.stringify(req.originalBody)} before validation`);
   console.log(`req.body is ${JSON.stringify(req.body)} after validation`);

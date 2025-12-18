@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 
 /**
  * Creates an Express app with optional error handling configuration
@@ -9,7 +8,7 @@ import bodyParser from 'body-parser';
  */
 export const createTestApp = (options = {}) => {
   const app = express();
-  app.use(bodyParser.json());
+  app.use(express.json());
 
   // Global error handler for passError tests - MUST be after routes
   if (options.passError) {
