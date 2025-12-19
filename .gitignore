@@ -3,7 +3,6 @@ node_modules
 *.log
 coverage
 .nyc_output
-package-lock.json
 example/typescript/*.js
 example/typescript/*.d.ts
 example/typescript/*.tsbuildinfo

@@ -64,6 +64,7 @@
     "@vitest/coverage-v8": "^4.0.16",
     "arktype": "^2.0.0-rc.8",
     "chance": "^1.1.12",
+    "coveralls": "^3.1.1",
     "eslint": "^9.39.2",
     "express": "~4.22.1",
     "express-formidable": "~1.2.0",
