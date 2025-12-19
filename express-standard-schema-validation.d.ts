@@ -76,7 +76,13 @@ export enum ContainerTypes {
  */
 export interface ExpressValidatorError {
   type: ContainerTypes;
+  error: {
+    message: string;
+    details: ReadonlyArray<StandardSchemaV1.Issue>;
+  };
+  value: any;
   issues: ReadonlyArray<StandardSchemaV1.Issue>;
+  statusCode: number;
 }
 
 /**

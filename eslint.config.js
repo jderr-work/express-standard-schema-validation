@@ -27,6 +27,15 @@ export default [
       eqeqeq: ['error', 'always'],
       'no-var': 'error',
       'prefer-const': 'error',
+      'no-use-before-define': [
+        'error',
+        {
+          functions: true,
+          classes: true,
+          variables: true,
+          allowNamedExports: false,
+        },
+      ],
 
       // Style (let Prettier handle most formatting)
       semi: ['error', 'always'],
@@ -35,12 +44,6 @@ export default [
   },
   {
     // Ignore patterns
-    ignores: [
-      'node_modules/**',
-      'coverage/**',
-      '*.config.js',
-      'example/typescript/*.js',
-      '.git/**',
-    ],
+    ignores: ['node_modules/**', 'coverage/**', '*.config.js', 'example/typescript/*.js', '.git/**'],
   },
 ];
