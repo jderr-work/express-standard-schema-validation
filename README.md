@@ -1,6 +1,7 @@
 # express-standard-schema-validation
 
 [![Coverage Status](https://coveralls.io/repos/github/jderr-work/express-standard-schema-validation/badge.svg?branch=update-ci)](https://coveralls.io/github/jderr-work/express-standard-schema-validation?branch=update-ci)
+
 This package is derived from [Evan Shortiss'](https://github.com/evanshortiss) [express-joi-validation](https://github.com/evanshortiss/express-joi-validation)
 Credit goes to him for the original implementation.
 
