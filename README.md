@@ -1,8 +1,14 @@
 # express-standard-schema-validation
 
-Express middleware for validating requests using [Standard Schema V1](https://github.com/standard-schema/standard-schema) compatible validation libraries.
+This package id dervied from [Evan Shortiss'](https://github.com/evanshortiss) [express-joi-validation](https://github.com/evanshortiss/express-joi-validation)
+Credit goes to him for the original implementation.
 
-Supports **Joi**, **Zod**, **ArkType**, and **Valibot** through a unified interface.
+This package is an express middleware for validating requests using a libary that implements [Standard Schema V1](https://github.com/standard-schema/standard-schema) interface.
+
+One divergence from the original package it that the joi package supported joi specific options. Because that is a
+libary specific feature, any options will need to be set on the schema itself.
+
+The tests have been using **Joi**, **Zod**, **ArkType**, and **Valibot** but any library that implements Standard Schema V1 should work.
 
 ## Features
 

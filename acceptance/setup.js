@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 
 /**
  * Creates an Express app with optional error handling configuration
@@ -9,7 +8,7 @@ import bodyParser from 'body-parser';
  */
 export const createTestApp = (options = {}) => {
   const app = express();
-  app.use(bodyParser.json());
+  app.use(express.json());
 
   // Global error handler for passError tests - MUST be after routes
   if (options.passError) {
@@ -30,7 +29,7 @@ export const createTestApp = (options = {}) => {
 export const startTestServer = async (app) => {
   // Add error handler AFTER all routes have been added
   if (app.get('needsErrorHandler')) {
-    app.use((err, req, res, next) => {
+    app.use((err, _req, res, _next) => {
       res.status(err.statusCode || 400).json({
         error: 'validation failed',
         details: {

@@ -1,4 +1,4 @@
-process.title = 'express-joi-validation';
+process.title = 'express-standard-schema-validation';
 
 const port = 8080;
 

@@ -77,6 +77,49 @@ const buildErrorString = (issues, container) => {
 export const createValidator = (cfg) => {
   cfg = cfg || {}; // default to an empty config
 
+  /**
+   * Response validation middleware
+   * @param {*} schema - Standard Schema V1 compatible schema
+   * @param {object} opts - Options for this middleware
+   * @returns {Function} - Express middleware function
+   */
+  function response(schema, opts = {}) {
+    // Validate that the schema implements Standard Schema
+    assertStandardSchema(schema);
+
+    const type = 'response';
+    return (req, res, next) => {
+      const resJson = res.json.bind(res);
+
+      function validateJson(json) {
+        return Promise.resolve(schema['~standard'].validate(json))
+          .then((result) => {
+            if (!result.issues) {
+              // Validation succeeded - return validated value
+              return resJson(result.value);
+            } else if (opts.passError || cfg.passError) {
+              // Pass error to express error handler
+              const err = {
+                type: type,
+                issues: result.issues,
+              };
+              next(err);
+            } else {
+              // Return error as response
+              res.status(opts.statusCode || cfg.statusCode || 500).end(buildErrorString(result.issues, `${type} json`));
+            }
+          })
+          .catch((err) => {
+            // Handle any unexpected errors during validation
+            next(err);
+          });
+      }
+
+      res.json = validateJson;
+      next();
+    };
+  }
+
   // We'll return this instance of the middleware
   const instance = {
     response,
@@ -112,11 +155,10 @@ export const createValidator = (cfg) => {
               next();
             } else if (opts.passError || cfg.passError) {
               // Pass error to express error handler
-              // Create an error object compatible with the old Joi-based API
+              // Create an error object with validation details
               const errorObj = {
                 message: buildErrorString(result.issues, `request ${type}`),
                 details: result.issues,
-                isJoi: true, // For backward compatibility with old error handlers
               };
 
               const err = {
@@ -143,40 +185,4 @@ export const createValidator = (cfg) => {
   });
 
   return instance;
-
-  function response(schema, opts = {}) {
-    // Validate that the schema implements Standard Schema
-    assertStandardSchema(schema);
-
-    const type = 'response';
-    return (req, res, next) => {
-      const resJson = res.json.bind(res);
-      res.json = validateJson;
-      next();
-
-      function validateJson(json) {
-        return Promise.resolve(schema['~standard'].validate(json))
-          .then((result) => {
-            if (!result.issues) {
-              // Validation succeeded - return validated value
-              return resJson(result.value);
-            } else if (opts.passError || cfg.passError) {
-              // Pass error to express error handler
-              const err = {
-                type: type,
-                issues: result.issues,
-              };
-              next(err);
-            } else {
-              // Return error as response
-              res.status(opts.statusCode || cfg.statusCode || 500).end(buildErrorString(result.issues, `${type} json`));
-            }
-          })
-          .catch((err) => {
-            // Handle any unexpected errors during validation
-            next(err);
-          });
-      }
-    };
-  }
 };

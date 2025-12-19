@@ -2,7 +2,6 @@ import express from 'express';
 import users from './users.js';
 import Joi from 'joi';
 import _ from 'lodash';
-import bodyParser from 'body-parser';
 import { createValidator } from '../../express-standard-schema-validation.js';
 
 const route = express.Router();
@@ -67,8 +66,8 @@ const bodySchema = Joi.object({
   age: Joi.number().integer().required().min(1).max(120),
 });
 
-route.post('/', bodyParser.json(), validator.body(bodySchema), (req, res) => {
-  console.log(`\Creating user with data ${JSON.stringify(req.body)}.`);
+route.post('/', express.json(), validator.body(bodySchema), (req, res) => {
+  console.log(`Creating user with data ${JSON.stringify(req.body)}.`);
   console.log(`req.body was ${JSON.stringify(req.originalBody)} before validation`);
   console.log(`req.body is ${JSON.stringify(req.body)} after validation`);
   console.log('note that the age was correctly cast to an integer if it was a string\n');
