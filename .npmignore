@@ -1,0 +1,15 @@
+src/
+acceptance/
+example/
+*.test.ts
+*.test.js
+tsconfig.json
+tsconfig.test.json
+vitest.config.js
+eslint.config.js
+prettier.config.js
+.github/
+.gitignore
+.editorconfig
+MIGRATION_ANALYSIS.md
+docs/

@@ -4,13 +4,13 @@ export default defineConfig({
   test: {
     globals: false,
     environment: 'node',
-    include: ['**/*.test.js'],
-    exclude: ['**/node_modules/**', '**/example/**'],
+    include: ['src/**/*.test.ts', 'acceptance/**/*.test.ts', 'acceptance/**/*.test.js'],
+    exclude: ['**/node_modules/**', '**/example/**', '**/dist/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
-      include: ['express-standard-schema-validation.js'],
-      exclude: ['**/*.test.js', '**/node_modules/**', 'example/**', 'acceptance/**', '*.config.js'],
+      include: ['src/**/*.ts'],
+      exclude: ['**/*.test.ts', '**/node_modules/**', 'example/**', 'acceptance/**', '*.config.js', '**/dist/**'],
       thresholds: {
         lines: 0,
         functions: 0,

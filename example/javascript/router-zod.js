@@ -2,7 +2,7 @@ import express from 'express';
 import users from './users.js';
 import { z } from 'zod';
 import _ from 'lodash';
-import { createValidator } from '../../express-standard-schema-validation.js';
+import { createValidator } from '../../dist/index.js';
 
 const route = express.Router();
 const validator = createValidator();

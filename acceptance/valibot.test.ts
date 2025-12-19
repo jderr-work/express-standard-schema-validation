@@ -1,30 +1,30 @@
 import { describe, test, expect } from 'vitest';
-import { type } from 'arktype';
+import * as v from 'valibot';
 import { createTestApp, startTestServer, stopTestServer } from './setup.js';
 import { expectSuccess, expectValidationError, get, post, getWithHeaders } from './helpers.js';
-import { createValidator } from '../express-standard-schema-validation.js';
+import { createValidator } from '../dist/index.js';
 
-describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
-  describe('ArkType Standard Schema Support', () => {
-    test('should validate that ArkType schemas implement Standard Schema', () => {
-      const arktypeSchema = type({
-        key: 'number',
+describe('express-standard-schema-validation with Valibot >= 1.0.0', () => {
+  describe('Valibot Standard Schema Support', () => {
+    test('should validate that Valibot schemas implement Standard Schema', () => {
+      const valibotSchema = v.object({
+        key: v.number(),
       });
 
-      // Check that ArkType 2.0+ has Standard Schema support
-      expect(arktypeSchema).toHaveProperty('~standard');
-      expect(arktypeSchema['~standard']).toHaveProperty('version', 1);
-      expect(arktypeSchema['~standard']).toHaveProperty('validate');
-      expect(arktypeSchema['~standard'].validate).toBeTypeOf('function');
+      // Check that Valibot 0.31+ has Standard Schema support
+      expect(valibotSchema).toHaveProperty('~standard');
+      expect(valibotSchema['~standard']).toHaveProperty('version', 1);
+      expect(valibotSchema['~standard']).toHaveProperty('validate');
+      expect(valibotSchema['~standard'].validate).toBeTypeOf('function');
     });
   });
 
   describe('#query validation', () => {
-    test('should successfully validate a query using ArkType', async () => {
+    test('should successfully validate a query using Valibot', async () => {
       const validator = createValidator();
-      const schema = type({
-        name: 'string',
-        'age?': 'number',
+      const schema = v.object({
+        name: v.string(),
+        age: v.optional(v.pipe(v.string(), v.transform(Number), v.number())),
       });
 
       const app = createTestApp();
@@ -40,9 +40,9 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should coerce string to number in query', async () => {
       const validator = createValidator();
-      const schema = type({
-        name: 'string',
-        age: 'string.numeric.parse',
+      const schema = v.object({
+        name: v.string(),
+        age: v.pipe(v.string(), v.transform(Number), v.number()),
       });
 
       const app = createTestApp();
@@ -62,9 +62,9 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should fail validation with invalid query', async () => {
       const validator = createValidator();
-      const schema = type({
-        name: 'string',
-        age: 'number',
+      const schema = v.object({
+        name: v.string(),
+        age: v.number(),
       });
 
       const app = createTestApp();
@@ -80,11 +80,11 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
   });
 
   describe('#body validation', () => {
-    test('should successfully validate a body using ArkType', async () => {
+    test('should successfully validate a body using Valibot', async () => {
       const validator = createValidator();
-      const schema = type({
-        username: 'string',
-        email: 'string.email',
+      const schema = v.object({
+        username: v.string(),
+        email: v.pipe(v.string(), v.email()),
       });
 
       const app = createTestApp();
@@ -106,9 +106,9 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should fail validation with invalid body', async () => {
       const validator = createValidator();
-      const schema = type({
-        username: 'string',
-        email: 'string.email',
+      const schema = v.object({
+        username: v.string(),
+        email: v.pipe(v.string(), v.email()),
       });
 
       const app = createTestApp();
@@ -129,11 +129,11 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should validate nested objects', async () => {
       const validator = createValidator();
-      const schema = type({
-        user: {
-          name: 'string',
-          age: 'number',
-        },
+      const schema = v.object({
+        user: v.object({
+          name: v.string(),
+          age: v.number(),
+        }),
       });
 
       const app = createTestApp();
@@ -152,10 +152,10 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
   });
 
   describe('#params validation', () => {
-    test('should successfully validate params using ArkType', async () => {
+    test('should successfully validate params using Valibot', async () => {
       const validator = createValidator();
-      const schema = type({
-        id: 'string.numeric.parse',
+      const schema = v.object({
+        id: v.pipe(v.string(), v.transform(Number), v.number()),
       });
 
       const app = createTestApp();
@@ -173,8 +173,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should fail validation with invalid params', async () => {
       const validator = createValidator();
-      const schema = type({
-        id: 'number>0<101',
+      const schema = v.object({
+        id: v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(1), v.maxValue(100)),
       });
 
       const app = createTestApp();
@@ -190,11 +190,11 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
   });
 
   describe('#headers validation', () => {
-    test('should successfully validate headers using ArkType', async () => {
+    test('should successfully validate headers using Valibot', async () => {
       const validator = createValidator();
-      const schema = type({
-        'x-api-key': 'string',
-        'content-type?': 'string',
+      const schema = v.object({
+        'x-api-key': v.string(),
+        'content-type': v.optional(v.string()),
       });
 
       const app = createTestApp();
@@ -212,8 +212,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
   describe('error handling with passError option', () => {
     test('should pass error to express error handler when passError is true', async () => {
       const validator = createValidator({ passError: true });
-      const schema = type({
-        key: 'string',
+      const schema = v.object({
+        key: v.string(),
       });
       const app = createTestApp({ passError: true });
 
@@ -235,8 +235,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should use custom status code', async () => {
       const validator = createValidator({ statusCode: 422 });
-      const schema = type({
-        key: 'string',
+      const schema = v.object({
+        key: v.string(),
       });
 
       const app = createTestApp();
@@ -251,11 +251,11 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
     });
   });
 
-  describe('ArkType-specific features', () => {
-    test('should validate string constraints', async () => {
+  describe('Valibot-specific features', () => {
+    test('should validate string constraints using pipes', async () => {
       const validator = createValidator();
-      const schema = type({
-        username: 'string>2<21',
+      const schema = v.object({
+        username: v.pipe(v.string(), v.minLength(3), v.maxLength(20)),
       });
 
       const app = createTestApp();
@@ -271,8 +271,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should validate numeric ranges', async () => {
       const validator = createValidator();
-      const schema = type({
-        age: 'number>17<121',
+      const schema = v.object({
+        age: v.pipe(v.number(), v.minValue(18), v.maxValue(120)),
       });
 
       const app = createTestApp();
@@ -288,8 +288,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should validate union types', async () => {
       const validator = createValidator();
-      const schema = type({
-        status: '"active" | "inactive" | "pending"',
+      const schema = v.object({
+        status: v.union([v.literal('active'), v.literal('inactive'), v.literal('pending')]),
       });
 
       const app = createTestApp();
@@ -305,8 +305,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should fail validation on invalid union value', async () => {
       const validator = createValidator();
-      const schema = type({
-        status: '"active" | "inactive"',
+      const schema = v.object({
+        status: v.union([v.literal('active'), v.literal('inactive')]),
       });
 
       const app = createTestApp();
@@ -322,8 +322,8 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
 
     test('should validate array types', async () => {
       const validator = createValidator();
-      const schema = type({
-        tags: 'string[]',
+      const schema = v.object({
+        tags: v.array(v.string()),
       });
 
       const app = createTestApp();
@@ -342,14 +342,53 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
       expect(data.tags).toHaveLength(3);
       await stopTestServer(testServer.server);
     });
+
+    test('should handle strict vs loose objects', async () => {
+      const validator = createValidator();
+      // strictObject will reject extra properties
+      const schema = v.strictObject({
+        name: v.string(),
+      });
+
+      const app = createTestApp();
+      app.post('/test', validator.body(schema), (_req, res) => {
+        res.status(200).json(_req.body);
+      });
+
+      const testServer = await startTestServer(app);
+      const error = await expectValidationError(post(testServer.baseUrl, '/test', { name: 'John', extra: 'value' }));
+      expect(error).toContain('Error validating');
+      await stopTestServer(testServer.server);
+    });
+
+    test('should allow extra properties with looseObject', async () => {
+      const validator = createValidator();
+      // looseObject will allow extra properties
+      const schema = v.looseObject({
+        name: v.string(),
+      });
+
+      const app = createTestApp();
+      app.post('/test', validator.body(schema), (_req, res) => {
+        expect(_req.body.name).toBe('John');
+        expect(_req.body.extra).toBe('value');
+        res.status(200).json(_req.body);
+      });
+
+      const testServer = await startTestServer(app);
+      const data = await expectSuccess(post(testServer.baseUrl, '/test', { name: 'John', extra: 'value' }));
+      expect(data.name).toBe('John');
+      expect(data.extra).toBe('value');
+      await stopTestServer(testServer.server);
+    });
   });
 
   describe('response validation', () => {
     test('should validate response data', async () => {
       const validator = createValidator();
-      const schema = type({
-        id: 'number',
-        name: 'string',
+      const schema = v.object({
+        id: v.number(),
+        name: v.string(),
       });
 
       const app = createTestApp();
@@ -368,14 +407,15 @@ describe('express-standard-schema-validation with ArkType >= 2.0.0-rc', () => {
   describe('originalQuery storage', () => {
     test('should store original query before validation', async () => {
       const validator = createValidator();
-      const schema = type({
-        age: 'string.numeric.parse',
+      const schema = v.object({
+        age: v.pipe(v.string(), v.transform(Number), v.number()),
       });
 
       const app = createTestApp();
       app.get('/test', validator.query(schema), (_req, res) => {
+        // @ts-expect-error - originalQuery is added by middleware
         expect(_req.originalQuery).toBeDefined();
-        // @ts-ignore - originalQuery is added by middleware
+        // @ts-expect-error - originalQuery is added by middleware
         expect(_req.originalQuery.age).toBe('25');
         expect(_req.query.age).toBe(25);
         res.status(200).end('ok');

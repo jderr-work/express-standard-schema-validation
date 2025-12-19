@@ -1,19 +1,19 @@
 # express-standard-schema-validation
 
-This package id dervied from [Evan Shortiss'](https://github.com/evanshortiss) [express-joi-validation](https://github.com/evanshortiss/express-joi-validation)
+This package is derived from [Evan Shortiss'](https://github.com/evanshortiss) [express-joi-validation](https://github.com/evanshortiss/express-joi-validation)
 Credit goes to him for the original implementation.
 
-This package is an express middleware for validating requests using a libary that implements [Standard Schema V1](https://github.com/standard-schema/standard-schema) interface.
+This package is an Express middleware for validating requests using a library that implements [Standard Schema V1](https://github.com/standard-schema/standard-schema) interface.
 
-One divergence from the original package it that the joi package supported joi specific options. Because that is a
-libary specific feature, any options will need to be set on the schema itself.
+One divergence from the original package is that the joi package supported joi specific options. Because that is a
+library specific feature, any options will need to be set on the schema itself.
 
 The tests have been using **Joi**, **Zod**, **ArkType**, and **Valibot** but any library that implements Standard Schema V1 should work.
 
 ## Features
 
 - 🎯 **Multi-Library Support** - Works with Joi, Zod, ArkType, and Valibot
-- 📘 **TypeScript Support** - Full type safety and intellisense
+- 📘 **TypeScript First** - Written in TypeScript with full type safety and intellisense
 - 🔄 **Value Replacement** - Replaces validated inputs (e.g., `req.body`) with validated/transformed values
 - 💾 **Original Value Retention** - Keeps original values in `req.originalBody`, `req.originalQuery`, etc.
 - 🎨 **Flexible Configuration** - Configure validation behavior per-route or globally
@@ -40,91 +40,81 @@ npm install valibot    # Valibot >= 1.0.0
 ### Using Joi
 
 ```js
-const Joi = require('joi')
-const express = require('express')
-const { createValidator } = require('express-standard-schema-validation')
+const Joi = require('joi');
+const express = require('express');
+const { createValidator } = require('express-standard-schema-validation');
 
-const app = express()
-const validator = createValidator()
+const app = express();
+const validator = createValidator();
 
 const querySchema = Joi.object({
   name: Joi.string().required(),
-  age: Joi.number()
-    .integer()
-    .min(0)
-})
+  age: Joi.number().integer().min(0),
+});
 
 app.get('/hello', validator.query(querySchema), (req, res) => {
-  res.json({ message: `Hello ${req.query.name}!` })
-})
+  res.json({ message: `Hello ${req.query.name}!` });
+});
 ```
 
 ### Using Zod
 
 ```js
-const { z } = require('zod')
-const express = require('express')
-const { createValidator } = require('express-standard-schema-validation')
+const { z } = require('zod');
+const express = require('express');
+const { createValidator } = require('express-standard-schema-validation');
 
-const app = express()
-const validator = createValidator()
+const app = express();
+const validator = createValidator();
 
 const querySchema = z.object({
   name: z.string(),
-  age: z.coerce
-    .number()
-    .int()
-    .min(0)
-})
+  age: z.coerce.number().int().min(0),
+});
 
 app.get('/hello', validator.query(querySchema), (req, res) => {
-  res.json({ message: `Hello ${req.query.name}!` })
-})
+  res.json({ message: `Hello ${req.query.name}!` });
+});
 ```
 
 ### Using ArkType
 
 ```js
-const { type } = require('arktype')
-const express = require('express')
-const { createValidator } = require('express-standard-schema-validation')
+const { type } = require('arktype');
+const express = require('express');
+const { createValidator } = require('express-standard-schema-validation');
 
-const app = express()
-const validator = createValidator()
+const app = express();
+const validator = createValidator();
 
 const querySchema = type({
   name: 'string',
-  age: 'string.numeric.parse'
-})
+  age: 'string.numeric.parse',
+});
 
 app.get('/hello', validator.query(querySchema), (req, res) => {
-  res.json({ message: `Hello ${req.query.name}!` })
-})
+  res.json({ message: `Hello ${req.query.name}!` });
+});
 ```
 
 ### Using Valibot
 
 ```js
-const v = require('valibot')
-const express = require('express')
-const { createValidator } = require('express-standard-schema-validation')
+const v = require('valibot');
+const express = require('express');
+const { createValidator } = require('express-standard-schema-validation');
 
-const app = express()
-const validator = createValidator()
+const app = express();
+const validator = createValidator();
 
 const querySchema = v.object({
   name: v.string(),
-  age: v.pipe(
-    v.string(),
-    v.transform(Number),
-    v.number(),
-    v.minValue(0)
-  )
-})
+  age: v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(0)),
+});
 
 app.get('/hello', validator.query(querySchema), (req, res) => {
-  res.json({ message: `Hello ${req.query.name}!` })
-})
+  res.json({ message: `Hello ${req.query.name}!` });
+});
 ```
 
 ## API Reference
@@ -145,8 +135,8 @@ Creates a validator instance with optional global configuration.
 ```js
 const validator = createValidator({
   passError: true,
-  statusCode: 422
-})
+  statusCode: 422,
+});
 ```
 
 ### Validator Methods
@@ -158,7 +148,7 @@ All methods accept a schema and optional configuration that overrides global set
 Validates `req.query`. Original value stored in `req.originalQuery`.
 
 ```js
-app.get('/search', validator.query(searchSchema), handler)
+app.get('/search', validator.query(searchSchema), handler);
 ```
 
 #### `validator.body(schema, [options])`
@@ -166,7 +156,7 @@ app.get('/search', validator.query(searchSchema), handler)
 Validates `req.body`. Original value stored in `req.originalBody`.
 
 ```js
-app.post('/users', validator.body(userSchema), handler)
+app.post('/users', validator.body(userSchema), handler);
 ```
 
 #### `validator.params(schema, [options])`
@@ -177,11 +167,11 @@ Validates `req.params`. Original value stored in `req.originalParams`.
 
 ```js
 // ✅ CORRECT
-app.get('/users/:id', validator.params(idSchema), handler)
+app.get('/users/:id', validator.params(idSchema), handler);
 
 // ❌ INCORRECT - won't work
-app.use(validator.params(idSchema))
-app.get('/users/:id', handler)
+app.use(validator.params(idSchema));
+app.get('/users/:id', handler);
 ```
 
 #### `validator.headers(schema, [options])`
@@ -189,7 +179,7 @@ app.get('/users/:id', handler)
 Validates `req.headers`. Original value stored in `req.originalHeaders`.
 
 ```js
-app.get('/api', validator.headers(authSchema), handler)
+app.get('/api', validator.headers(authSchema), handler);
 ```
 
 #### `validator.fields(schema, [options])`
@@ -197,7 +187,7 @@ app.get('/api', validator.headers(authSchema), handler)
 Validates form fields (for use with `express-formidable`). Original value stored in `req.originalFields`.
 
 ```js
-app.post('/upload', formidable(), validator.fields(fieldsSchema), handler)
+app.post('/upload', formidable(), validator.fields(fieldsSchema), handler);
 ```
 
 #### `validator.response(schema, [options])`
@@ -205,7 +195,7 @@ app.post('/upload', formidable(), validator.fields(fieldsSchema), handler)
 Validates outgoing response data.
 
 ```js
-app.get('/users/:id', validator.response(userSchema), handler)
+app.get('/users/:id', validator.response(userSchema), handler);
 ```
 
 ### Options Object
@@ -230,13 +220,13 @@ Configure Joi schemas using Joi's built-in methods:
 ```js
 const schema = Joi.object({
   name: Joi.string().required(),
-  extra: Joi.any()
+  extra: Joi.any(),
 })
   .unknown(true) // Allow extra properties
   .options({
     convert: true, // Type coercion
-    abortEarly: false // Return all errors
-  })
+    abortEarly: false, // Return all errors
+  });
 ```
 
 ### Zod Configuration
@@ -247,9 +237,9 @@ Configure Zod schemas using Zod's built-in methods:
 const schema = z
   .object({
     name: z.string(),
-    age: z.coerce.number() // Type coercion
+    age: z.coerce.number(), // Type coercion
   })
-  .strict() // Reject extra properties
+  .strict(); // Reject extra properties
 // .passthrough()         // Allow extra properties
 // .strip()               // Remove extra properties (default)
 ```
@@ -262,8 +252,8 @@ Configure validation directly in ArkType's syntax:
 const schema = type({
   name: 'string',
   age: 'string.numeric.parse', // Parse string to number
-  score: 'number>0<100' // Number between 0 and 100
-})
+  score: 'number>0<100', // Number between 0 and 100
+});
 ```
 
 ### Valibot Configuration
@@ -273,12 +263,8 @@ Configure Valibot schemas using pipes and modifiers:
 ```js
 const schema = v.object({
   name: v.string(),
-  age: v.pipe(
-    v.string(),
-    v.transform(Number),
-    v.number()
-  )
-})
+  age: v.pipe(v.string(), v.transform(Number), v.number()),
+});
 // v.strictObject() - Reject extra properties
 // v.looseObject()  - Allow extra properties
 ```
@@ -330,47 +316,37 @@ By default, validation failures return HTTP 400 with error message as plain text
 Use `passError: true` to handle errors with Express error middleware:
 
 ```js
-const validator = createValidator({ passError: true })
+const validator = createValidator({ passError: true });
 
-app.get('/hello', validator.query(schema), handler)
+app.get('/hello', validator.query(schema), handler);
 
 app.use((err, req, res, next) => {
   if (err && err.error) {
     return res.status(400).json({
       type: err.type, // 'query', 'body', 'params', 'headers', or 'fields'
       message: err.error.message,
-      issues: err.issues // Array of Standard Schema issues
-    })
+      issues: err.issues, // Array of Standard Schema issues
+    });
   }
-  next(err)
-})
+  next(err);
+});
 ```
 
 ### TypeScript Error Handling
 
 ```ts
-import {
-  ExpressValidatorError,
-  ContainerTypes
-} from 'express-standard-schema-validation'
+import { ExpressValidatorError, ContainerTypes } from 'express-standard-schema-validation';
 
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    if (err && 'type' in err && err.type in ContainerTypes) {
-      const validationError = err as ExpressValidatorError
-      return res.status(400).json({
-        type: validationError.type,
-        issues: validationError.issues
-      })
-    }
-    next(err)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err && 'type' in err && err.type in ContainerTypes) {
+    const validationError = err as ExpressValidatorError;
+    return res.status(400).json({
+      type: validationError.type,
+      issues: validationError.issues,
+    });
   }
-)
+  next(err);
+});
 ```
 
 ## TypeScript Usage
@@ -378,53 +354,49 @@ app.use(
 ### Basic TypeScript Example
 
 ```ts
-import { z } from 'zod'
-import express from 'express'
+import { z } from 'zod';
+import express from 'express';
 import {
   createValidator,
   ValidatedRequest,
   ValidatedRequestSchema,
-  ContainerTypes
-} from 'express-standard-schema-validation'
+  ContainerTypes,
+} from 'express-standard-schema-validation';
 
-const app = express()
-const validator = createValidator()
+const app = express();
+const validator = createValidator();
 
 const querySchema = z.object({
   name: z.string(),
-  age: z.coerce.number()
-})
+  age: z.coerce.number(),
+});
 
 interface HelloRequestSchema extends ValidatedRequestSchema {
-  [ContainerTypes.Query]: z.infer<typeof querySchema>
+  [ContainerTypes.Query]: z.infer<typeof querySchema>;
 }
 
-app.get(
-  '/hello',
-  validator.query(querySchema),
-  (req: ValidatedRequest<HelloRequestSchema>, res) => {
-    // req.query.name is string
-    // req.query.age is number
-    res.json({ message: `Hello ${req.query.name}!` })
-  }
-)
+app.get('/hello', validator.query(querySchema), (req: ValidatedRequest<HelloRequestSchema>, res) => {
+  // req.query.name is string
+  // req.query.age is number
+  res.json({ message: `Hello ${req.query.name}!` });
+});
 ```
 
 ### Multiple Validations
 
 ```ts
 const headerSchema = z.object({
-  'x-api-key': z.string()
-})
+  'x-api-key': z.string(),
+});
 
 const bodySchema = z.object({
   email: z.string().email(),
-  age: z.number()
-})
+  age: z.number(),
+});
 
 interface CreateUserSchema extends ValidatedRequestSchema {
-  [ContainerTypes.Headers]: z.infer<typeof headerSchema>
-  [ContainerTypes.Body]: z.infer<typeof bodySchema>
+  [ContainerTypes.Headers]: z.infer<typeof headerSchema>;
+  [ContainerTypes.Body]: z.infer<typeof bodySchema>;
 }
 
 app.post(
@@ -433,11 +405,11 @@ app.post(
   validator.body(bodySchema),
   (req: ValidatedRequest<CreateUserSchema>, res) => {
     // Fully typed access to headers and body
-    const apiKey = req.headers['x-api-key']
-    const { email, age } = req.body
-    res.json({ success: true })
-  }
-)
+    const apiKey = req.headers['x-api-key'];
+    const { email, age } = req.body;
+    res.json({ success: true });
+  },
+);
 ```
 
 ## Validation Order
@@ -450,8 +422,8 @@ app.post(
   validator.headers(headerSchema), // Validates first
   validator.body(bodySchema), // Validates second
   validator.query(querySchema), // Validates third
-  handler
-)
+  handler,
+);
 ```
 
 If any validation fails, subsequent validators and the handler won't execute.
@@ -462,13 +434,13 @@ Original (pre-validation) values are preserved:
 
 ```js
 const schema = z.object({
-  age: z.coerce.number()
-})
+  age: z.coerce.number(),
+});
 
 app.get('/test', validator.query(schema), (req, res) => {
-  console.log(req.originalQuery.age) // "25" (string)
-  console.log(req.query.age) // 25 (number)
-})
+  console.log(req.originalQuery.age); // "25" (string)
+  console.log(req.query.age); // 25 (number)
+});
 ```
 
 Available original properties:

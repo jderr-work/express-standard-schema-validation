@@ -4,7 +4,7 @@ const port = 8080;
 
 import express from 'express';
 import Joi from 'joi';
-import { createValidator } from '../../express-standard-schema-validation.js';
+import { createValidator } from '../../dist/index.js';
 import router from './router.js';
 
 const app = express();

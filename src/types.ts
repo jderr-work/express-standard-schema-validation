@@ -53,12 +53,6 @@ export declare namespace StandardSchemaV1 {
 }
 
 /**
- * Creates an instance of this module that can be used to generate middleware
- * @param cfg - Configuration options
- */
-export function createValidator(cfg?: ExpressValidatorConfig): ExpressValidatorInstance;
-
-/**
  * These are the named properties on an express.Request that this module can
  * validate, e.g "body" or "query"
  */

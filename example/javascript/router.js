@@ -2,7 +2,7 @@ import express from 'express';
 import users from './users.js';
 import Joi from 'joi';
 import _ from 'lodash';
-import { createValidator } from '../../express-standard-schema-validation.js';
+import { createValidator } from '../../dist/index.js';
 
 const route = express.Router();
 const validator = createValidator();

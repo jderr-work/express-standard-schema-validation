@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest';
-import { createValidator } from './express-standard-schema-validation.js';
+import { createValidator } from './index.js';
 
 describe('createValidator', () => {
   describe('Standard Schema validation', () => {
@@ -538,7 +538,11 @@ describe('createValidator', () => {
       const res = {};
       const next = vi.fn();
 
-      await middleware(req, res, next);
+      // Call middleware and wait for next() to be called
+      middleware(req, res, next);
+      await vi.waitFor(() => {
+        expect(next).toHaveBeenCalled();
+      });
 
       expect(next).toHaveBeenCalledWith();
       expect(req.query.async).toBe(true);
@@ -563,7 +567,11 @@ describe('createValidator', () => {
       const res = {};
       const next = vi.fn();
 
-      await middleware(req, res, next);
+      // Call middleware and wait for next() to be called
+      middleware(req, res, next);
+      await vi.waitFor(() => {
+        expect(next).toHaveBeenCalled();
+      });
 
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -591,7 +599,11 @@ describe('createValidator', () => {
       const res = {};
       const next = vi.fn();
 
-      await middleware(req, res, next);
+      // Call middleware and wait for next() to be called
+      middleware(req, res, next);
+      await vi.waitFor(() => {
+        expect(next).toHaveBeenCalled();
+      });
 
       expect(next).toHaveBeenCalledWith(expect.any(Error));
       expect(next.mock.calls[0][0].message).toBe('Unexpected error');

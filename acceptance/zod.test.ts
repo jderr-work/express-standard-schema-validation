@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest';
 import { z } from 'zod';
 import { createTestApp, startTestServer, stopTestServer } from './setup.js';
 import { expectSuccess, expectValidationError, get, post } from './helpers.js';
-import { createValidator } from '../express-standard-schema-validation.js';
+import { createValidator } from '../dist/index.js';
 
 describe('express-joi-validation with Zod >= 3.23', () => {
   describe('Zod Standard Schema Support', () => {
