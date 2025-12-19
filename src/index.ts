@@ -35,7 +35,6 @@ export const createValidator = (cfg: ExpressValidatorConfig = {}): ExpressValida
     const type = 'response';
     return (_req: Request, res: Response, next: NextFunction): void => {
       const resJson = res.json.bind(res);
-
       const validateJson = async (json: unknown): Promise<Response | void> => {
         try {
           const result = await schema['~standard'].validate(json);

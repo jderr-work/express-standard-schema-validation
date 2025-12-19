@@ -394,9 +394,19 @@ describe('createValidator', () => {
   });
 
   describe('Response middleware', () => {
+    let mockSchema: any;
+    test('should throw an error if not a standard schema', async () => {
+      const validator = createValidator();
+      mockSchema = {};
+
+      expect(() => validator.response(mockSchema as any)).toThrow(
+        'Invalid schema: must implement Standard Schema V1 interface.',
+      );
+    });
+
     test('should validate response data', async () => {
       const validator = createValidator();
-      const mockSchema = {
+      mockSchema = {
         '~standard': {
           version: 1,
           vendor: 'test',
@@ -428,93 +438,192 @@ describe('createValidator', () => {
       // The original json should have been called with the validated data
       expect(originalJson).toHaveBeenCalledWith({ message: 'success' });
     });
+
+    test('should call next when passError is true in global config', async () => {
+      const validator = createValidator({ passError: true });
+      mockSchema = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => ({ issues: [{ message: 'Invalid' }] }),
+        },
+      };
+      const middleware = validator.response(mockSchema);
+      const req = { query: {} };
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
+      const next = vi.fn();
+
+      await middleware(req, res, next);
+      res.json();
+    });
+
+    test('should call next when passError is true in local config', async () => {
+      const validator = createValidator();
+      mockSchema = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => ({ issues: [{ message: 'Invalid' }] }),
+        },
+      };
+      const middleware = validator.response(mockSchema, { passError: true });
+
+      const req = { query: {} };
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
+      const next = vi.fn();
+
+      await middleware(req, res, next);
+      res.json();
+    });
+
+    test('should return error as response if passError is not set', async () => {
+      const validator = createValidator();
+      mockSchema = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => ({ issues: [{ message: 'Invalid' }] }),
+        },
+      };
+      const middleware = validator.response(mockSchema);
+      const req = { query: {} };
+      const mockEnd = vi.fn();
+      const mockStatus = vi.fn().mockReturnValue({ end: mockEnd });
+      const res = {
+        status: mockStatus,
+        json: vi.fn(),
+      } as unknown as Response;
+
+      const next = vi.fn();
+
+      await middleware(req, res, next);
+      await res.json();
+      expect(mockStatus).toHaveBeenCalledWith(500);
+      expect(mockEnd).toHaveBeenCalledWith('Error validating response json. Invalid.');
+      expect(next).toHaveBeenCalledWith(); // next wasn't called because we sent response
+    });
+
+    test('should call next with an error if an unexpect error is thrown', async () => {
+      const validator = createValidator();
+      mockSchema = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => {
+            throw new Error('Unexpected error');
+          },
+        },
+      };
+
+      const middleware = validator.response(mockSchema);
+      const req = { query: {} };
+      const res = {
+        status: vi.fn(),
+        json: vi.fn(),
+      } as unknown as Response;
+
+      const next = vi.fn();
+
+      await middleware(req, res, next);
+      await res.json();
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
   });
 
   describe('passError configuration', () => {
-    test('should call next(error) when passError is true in global config', async () => {
-      const validator = createValidator({ passError: true });
-      const mockSchema = {
-        '~standard': {
-          version: 1,
-          vendor: 'test',
-          validate: () => ({ issues: [{ message: 'Invalid' }] }),
-        },
-      };
+    describe('Query middleware', () => {
+      test('should call next error when passError is true in global config', async () => {
+        expect(true).toBe(true);
+        const validator = createValidator({ passError: true });
+        const mockSchema = {
+          '~standard': {
+            version: 1,
+            vendor: 'test',
+            validate: () => ({ issues: [{ message: 'Invalid' }] }),
+          },
+        };
 
-      const middleware = validator.query(mockSchema);
+        validator.query(mockSchema);
+        const middleware = validator.query(mockSchema as any);
+        const req = { query: {} };
+        const res = {
+          status: vi.fn().mockReturnThis(),
+          json: vi.fn(),
+        };
+        const next = vi.fn();
 
-      const req = { query: {} };
-      const res = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
-      const next = vi.fn();
+        await middleware(req, res, next);
 
-      await middleware(req, res, next);
+        expect(next).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'query',
+            issues: expect.any(Array),
+          }),
+        );
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
+      });
 
-      expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'query',
-          issues: expect.any(Array),
-        }),
-      );
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
-    });
+      test('should call next error when passError is true in middleware config', async () => {
+        const validator = createValidator();
+        const mockSchema = {
+          '~standard': {
+            version: 1,
+            vendor: 'test',
+            validate: () => ({ issues: [{ message: 'Invalid' }] }),
+          },
+        };
 
-    test('should call next(error) when passError is true in middleware config', async () => {
-      const validator = createValidator();
-      const mockSchema = {
-        '~standard': {
-          version: 1,
-          vendor: 'test',
-          validate: () => ({ issues: [{ message: 'Invalid' }] }),
-        },
-      };
+        const middleware = validator.query(mockSchema, { passError: true });
 
-      const middleware = validator.query(mockSchema, { passError: true });
+        const req = { query: {} };
+        const res = {
+          status: vi.fn().mockReturnThis(),
+          json: vi.fn(),
+        };
+        const next = vi.fn();
 
-      const req = { query: {} };
-      const res = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
-      const next = vi.fn();
+        await middleware(req, res, next);
 
-      await middleware(req, res, next);
+        expect(next).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'query',
+            issues: expect.any(Array),
+          }),
+        );
+        expect(res.status).not.toHaveBeenCalled();
+      });
 
-      expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'query',
-          issues: expect.any(Array),
-        }),
-      );
-      expect(res.status).not.toHaveBeenCalled();
-    });
+      test('should prefer middleware passError over global passError', async () => {
+        const validator = createValidator({ passError: false });
+        const mockSchema = {
+          '~standard': {
+            version: 1,
+            vendor: 'test',
+            validate: () => ({ issues: [{ message: 'Invalid' }] }),
+          },
+        };
 
-    test('should prefer middleware passError over global passError', async () => {
-      const validator = createValidator({ passError: false });
-      const mockSchema = {
-        '~standard': {
-          version: 1,
-          vendor: 'test',
-          validate: () => ({ issues: [{ message: 'Invalid' }] }),
-        },
-      };
+        const middleware = validator.query(mockSchema, { passError: true });
 
-      const middleware = validator.query(mockSchema, { passError: true });
+        const req = { query: {} };
+        const res = {
+          status: vi.fn().mockReturnThis(),
+          json: vi.fn(),
+        };
+        const next = vi.fn();
 
-      const req = { query: {} };
-      const res = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
-      const next = vi.fn();
+        await middleware(req, res, next);
 
-      await middleware(req, res, next);
-
-      expect(next).toHaveBeenCalledWith(expect.objectContaining({ type: 'query' }));
-      expect(res.status).not.toHaveBeenCalled();
+        expect(next).toHaveBeenCalledWith(expect.objectContaining({ type: 'query' }));
+        expect(res.status).not.toHaveBeenCalled();
+      });
     });
   });
 

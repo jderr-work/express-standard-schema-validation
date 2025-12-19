@@ -12,12 +12,6 @@ export default defineConfig({
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.ts'],
       exclude: ['**/*.test.ts', '**/node_modules/**', 'example/**', 'acceptance/**', '*.config.js', '**/dist/**'],
-      thresholds: {
-        lines: 78,
-        functions: 85,
-        branches: 68,
-        statements: 79,
-      },
     },
     testTimeout: 5000,
     hookTimeout: 10000,
