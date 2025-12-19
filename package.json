@@ -1,12 +1,10 @@
 {
   "name": "express-standard-schema-validation",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "validate express application inputs and parameters using Standard Schema V1 (supports Joi, Zod, ArkType, and Valibot)",
   "main": "express-standard-schema-validation.js",
   "scripts": {
     "build-ts": "tsc --build example/typescript/tsconfig.json",
-    "unit": "vitest run express-standard-schema-validation.test.js",
-    "acceptance": "vitest run acceptance/",
     "test": "npm run ts-test && vitest run && npm run build-ts",
     "test:watch": "vitest",
     "test:unit": "vitest run express-standard-schema-validation.test.js --watch",
@@ -36,7 +34,7 @@
     "typescript",
     "tsc"
   ],
-  "author": "Evan Shortiss",
+  "author": "John Derr, Evan Shortiss (express-joi-validation)",
   "license": "MIT",
   "devDependencies": {
     "@types/express": "~4.0.39",
