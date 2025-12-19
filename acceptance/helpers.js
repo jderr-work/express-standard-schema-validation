@@ -5,7 +5,7 @@
  * @param {number} expectedStatus
  * @returns {Promise<any>}
  */
-export async function expectSuccess(response, expectedStatus = 200) {
+export const expectSuccess = async (response, expectedStatus = 200) => {
   response = await response;
   if (response.status !== expectedStatus) {
     const text = await response.text();
@@ -17,7 +17,7 @@ export async function expectSuccess(response, expectedStatus = 200) {
     return response.json();
   }
   return response.text();
-}
+};
 
 /**
  * Assert validation error response
@@ -26,7 +26,7 @@ export async function expectSuccess(response, expectedStatus = 200) {
  * @param {number} expectedStatus
  * @returns {Promise<string>}
  */
-export async function expectValidationError(response, expectedStatus = 400) {
+export const expectValidationError = async (response, expectedStatus = 400) => {
   response = await response;
   if (response.status !== expectedStatus) {
     throw new Error(`Expected status ${expectedStatus}, got ${response.status}`);
@@ -36,7 +36,7 @@ export async function expectValidationError(response, expectedStatus = 400) {
     throw new Error(`Response does not contain 'Error validating request': ${text}`);
   }
   return text;
-}
+};
 
 /**
  * Make GET request with query params
@@ -46,11 +46,11 @@ export async function expectValidationError(response, expectedStatus = 400) {
  * @param {Object} params
  * @returns {Promise<Response>}
  */
-export async function get(baseUrl, path, params = {}) {
+export const get = async (baseUrl, path, params = {}) => {
   const queryString = new URLSearchParams(params).toString();
   const fullUrl = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
   return fetch(fullUrl);
-}
+};
 
 /**
  * Make POST request with JSON body
@@ -60,13 +60,13 @@ export async function get(baseUrl, path, params = {}) {
  * @param {Object} body
  * @returns {Promise<Response>}
  */
-export async function post(baseUrl, path, body) {
+export const post = async (baseUrl, path, body) => {
   return fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-}
+};
 
 /**
  * Make GET request with custom headers
@@ -77,11 +77,11 @@ export async function post(baseUrl, path, body) {
  * @param {Object} headers
  * @returns {Promise<Response>}
  */
-export async function getWithHeaders(baseUrl, path, params = {}, headers = {}) {
+export const getWithHeaders = async (baseUrl, path, params = {}, headers = {}) => {
   const queryString = new URLSearchParams(params).toString();
   const fullUrl = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
   return fetch(fullUrl, { headers });
-}
+};
 
 /**
  * Make POST request with form data (multipart/form-data)
@@ -91,7 +91,7 @@ export async function getWithHeaders(baseUrl, path, params = {}, headers = {}) {
  * @param {Object} fields
  * @returns {Promise<Response>}
  */
-export async function postFormData(baseUrl, path, fields) {
+export const postFormData = async (baseUrl, path, fields) => {
   const formData = new FormData();
   for (const [key, value] of Object.entries(fields)) {
     formData.append(key, value);
@@ -100,4 +100,4 @@ export async function postFormData(baseUrl, path, fields) {
     method: 'POST',
     body: formData,
   });
-}
+};

@@ -46,6 +46,16 @@ export default [
       // Style (let Prettier handle most formatting)
       semi: ['error', 'always'],
       quotes: ['error', 'single', { avoidEscape: true }],
+
+      // Function declaration rules - enforce arrow functions
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      'prefer-arrow-callback': [
+        'error',
+        {
+          allowNamedFunctions: false,
+          allowUnboundThis: true,
+        },
+      ],
     },
   },
   {

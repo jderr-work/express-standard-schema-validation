@@ -1,5 +1,6 @@
 # express-standard-schema-validation
 
+[![Coverage Status](https://coveralls.io/repos/github/jderr-work/express-standard-schema-validation/badge.svg?branch=update-ci)](https://coveralls.io/github/jderr-work/express-standard-schema-validation?branch=update-ci)
 This package is derived from [Evan Shortiss'](https://github.com/evanshortiss) [express-joi-validation](https://github.com/evanshortiss/express-joi-validation)
 Credit goes to him for the original implementation.
 
@@ -12,7 +13,7 @@ The tests have been using **Joi**, **Zod**, **ArkType**, and **Valibot** but any
 
 ## Features
 
-- 🎯 **Multi-Library Support** - Works with Joi, Zod, ArkType, and Valibot
+- 🎯 **Multi-Library Support** - Will work with any validation library implementing Standard Schema V1
 - 📘 **TypeScript First** - Written in TypeScript with full type safety and intellisense
 - 🔄 **Value Replacement** - Replaces validated inputs (e.g., `req.body`) with validated/transformed values
 - 💾 **Original Value Retention** - Keeps original values in `req.originalBody`, `req.originalQuery`, etc.
@@ -26,14 +27,7 @@ npm install express-standard-schema-validation
 ```
 
 Then install your preferred validation library:
-
-```bash
-# Choose one or more:
-npm install joi        # Joi >= 18.0.0
-npm install zod        # Zod >= 3.23.0
-npm install arktype    # ArkType >= 2.0.0-rc
-npm install valibot    # Valibot >= 1.0.0
-```
+This has been tested with: zod, joi, arktype, valibot
 
 ## Quick Start
 
@@ -454,6 +448,105 @@ Available original properties:
 ## Examples
 
 Full JavaScript and TypeScript examples are in the [`example/`](./example) directory.
+
+## Development
+
+### Prerequisites
+
+- Node.js >= 20.0.0
+- npm >= 9.0.0
+
+### Setup
+
+```bash
+git clone https://github.com/jderr-work/express-standard-schema-validation.git
+cd express-standard-schema-validation
+npm install
+```
+
+### Running Checks
+
+Run all verification checks (what CI runs):
+
+```bash
+npm run verify
+```
+
+This runs:
+
+- ✅ Code formatting check (Prettier)
+- ✅ Linting (ESLint)
+- ✅ Type checking (TypeScript)
+- ✅ All tests (Vitest)
+- ✅ Build verification
+
+Run quick verification (skips tests, runs on pre-commit):
+
+```bash
+npm run verify:quick
+```
+
+Run individual checks:
+
+```bash
+npm run format:check  # Check code formatting
+npm run format        # Auto-fix formatting
+npm run lint          # Check code quality
+npm run lint:fix      # Auto-fix linting issues
+npm run type-check    # Check TypeScript types
+npm test              # Run all tests
+npm run test:unit     # Run unit tests only (watch mode)
+npm run test:acceptance # Run acceptance tests only (watch mode)
+npm run build         # Build the package
+npm run coverage      # Generate coverage report
+```
+
+### Pre-commit Hooks
+
+This project uses [simple-git-hooks](https://github.com/toplenboren/simple-git-hooks) to automatically run `verify:quick` before each commit. This ensures code quality and catches issues early.
+
+If you need to bypass the pre-commit hook (not recommended):
+
+```bash
+git commit --no-verify -m "message"
+```
+
+### Code Coverage
+
+This project maintains **100% code coverage**. All tests must pass with 100% coverage for:
+
+- Lines
+- Functions
+- Branches
+- Statements
+
+Coverage reports are automatically generated and uploaded to Coveralls on CI builds.
+
+### CI/CD
+
+This project uses GitHub Actions for continuous integration:
+
+- **All checks** (format, lint, type-check, tests, build) run on every Node.js version (18, 20, 22) and Express version (4, 5)
+- **Coverage** is uploaded to Coveralls and must maintain 100%
+- **CI runs** on all PRs and pushes to `main` branch
+- **CI skips** for documentation-only changes (\*.md files)
+
+See [.github/workflows/ci.yaml](.github/workflows/ci.yaml) for the complete CI configuration.
+
+### Testing with Different Validators
+
+The test suite includes acceptance tests for all supported validation libraries:
+
+```bash
+# All validators are tested by default
+npm test
+
+# Run specific validator tests
+npm run test:acceptance -- joi.test.ts
+npm run test:acceptance -- zod.test.ts
+npm run test:acceptance -- arktype.test.ts
+npm run test:acceptance -- valibot.test.ts
+```
 
 ## Standard Schema Support
 

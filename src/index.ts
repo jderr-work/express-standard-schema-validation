@@ -16,14 +16,17 @@ import { isStandardSchema, buildErrorString } from './utils.js';
  * @param cfg.statusCode - Default status code for validation failures
  * @returns Validator instance with middleware generator methods
  */
-export function createValidator(cfg: ExpressValidatorConfig = {}): ExpressValidatorInstance {
+export const createValidator = (cfg: ExpressValidatorConfig = {}): ExpressValidatorInstance => {
   /**
    * Response validation middleware
    * @param schema - Standard Schema V1 compatible schema
    * @param opts - Options for this middleware
    * @returns Express middleware function
    */
-  function response<T extends StandardSchemaV1>(schema: T, opts: ExpressValidatorContainerConfig = {}): RequestHandler {
+  const response = <T extends StandardSchemaV1>(
+    schema: T,
+    opts: ExpressValidatorContainerConfig = {},
+  ): RequestHandler => {
     // Validate that the schema implements Standard Schema
     if (!isStandardSchema(schema)) {
       throw new Error('Invalid schema: must implement Standard Schema V1 interface.');
@@ -32,7 +35,6 @@ export function createValidator(cfg: ExpressValidatorConfig = {}): ExpressValida
     const type = 'response';
     return (_req: Request, res: Response, next: NextFunction): void => {
       const resJson = res.json.bind(res);
-
       const validateJson = async (json: unknown): Promise<Response | void> => {
         try {
           const result = await schema['~standard'].validate(json);
@@ -62,7 +64,7 @@ export function createValidator(cfg: ExpressValidatorConfig = {}): ExpressValida
       res.json = validateJson as any;
       next();
     };
-  }
+  };
 
   // We'll return this instance of the middleware
   const instance: ExpressValidatorInstance = {
@@ -74,10 +76,10 @@ export function createValidator(cfg: ExpressValidatorConfig = {}): ExpressValida
     const containerType = type as ContainerTypes;
     const container = containers[containerType];
 
-    (instance as any)[type] = function <T extends StandardSchemaV1>(
+    (instance as any)[type] = <T extends StandardSchemaV1>(
       schema: T,
       opts: ExpressValidatorContainerConfig = {},
-    ): RequestHandler {
+    ): RequestHandler => {
       // Validate that the schema implements Standard Schema
       if (!isStandardSchema(schema)) {
         throw new Error('Invalid schema: must implement Standard Schema V1 interface.');
@@ -133,7 +135,7 @@ export function createValidator(cfg: ExpressValidatorConfig = {}): ExpressValida
   });
 
   return instance;
-}
+};
 
 // Re-export types for convenience
 export * from './types.js';
