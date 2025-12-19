@@ -2,6 +2,34 @@
 
 Date format is DD/MM/YYYY
 
+## 0.2.0 (19/12/2024)
+
+**TypeScript Migration**
+
+This release converts the entire codebase from JavaScript to TypeScript.
+
+### ✨ New Features
+
+- **TypeScript First** - Entire codebase now written in TypeScript with strict mode enabled
+- **Auto-Generated Types** - Type definitions are now generated from TypeScript source
+- **Source Maps** - Full source map support for debugging
+- **Better Type Safety** - Improved type inference and compile-time checks
+
+### 💥 Breaking Changes
+
+- **Main entry point changed** - Now uses `dist/index.js` (compiled from TypeScript)
+- **Type definitions** - Auto-generated from TypeScript instead of hand-written `.d.ts` file
+- Examples must now import from `dist/index.js` path
+
+### 🔧 Internal Changes
+
+- All source code migrated to `src/` directory
+- Tests converted to TypeScript
+- Build process uses TypeScript compiler (`tsc`)
+- Added `tsconfig.json` and `tsconfig.test.json` configuration
+- Updated `.gitignore` and added `.npmignore`
+- Updated package.json with build scripts
+
 ## 1.0.0 (17/12/2024)
 
 **Major Version - Breaking Changes**
@@ -52,9 +80,9 @@ For Zod users:
 const schema = z
   .object({
     name: z.string(),
-    age: z.coerce.number() // Type coercion
+    age: z.coerce.number(), // Type coercion
   })
-  .strict() // Reject extra properties
+  .strict(); // Reject extra properties
 ```
 
 ### 📦 Dependencies

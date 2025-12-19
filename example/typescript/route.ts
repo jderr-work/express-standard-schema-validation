@@ -6,7 +6,7 @@ import {
   ValidatedRequestSchema,
   createValidator,
   ContainerTypes,
-} from '../../express-standard-schema-validation';
+} from '../../dist/index.js';
 import { Router } from 'express';
 
 const route = Router();

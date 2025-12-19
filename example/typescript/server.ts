@@ -5,7 +5,7 @@ const port = 3030;
 import express from 'express';
 import * as Joi from 'joi';
 import HelloWorld from './route';
-import { createValidator, ExpressValidatorError } from '../../express-standard-schema-validation';
+import { createValidator, ExpressValidatorError } from '../../dist/index.js';
 
 const app = express();
 const validator = createValidator();
@@ -26,15 +26,17 @@ app.get('/ping', (req, res) => {
 app.use('/hello', HelloWorld);
 
 // Custom error handler
-app.use((err: any | ExpressValidatorError, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (err && err.type && err.issues) {
-    const e: ExpressValidatorError = err;
-    // e.g "you submitted a bad query"
-    res.status(400).end(`You submitted a bad ${e.type} parameter.`);
-  } else {
-    res.status(500).end('internal server error');
-  }
-});
+app.use(
+  (err: any | ExpressValidatorError, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    if (err && err.type && err.issues) {
+      const e: ExpressValidatorError = err;
+      // e.g "you submitted a bad query"
+      res.status(400).end(`You submitted a bad ${e.type} parameter.`);
+    } else {
+      res.status(500).end('internal server error');
+    }
+  },
+);
 
 app.listen(port, () => {
   console.log(`\napp started on ${port}\n`);

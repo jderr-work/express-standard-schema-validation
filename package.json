@@ -1,29 +1,41 @@
 {
   "name": "express-standard-schema-validation",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "validate express application inputs and parameters using Standard Schema V1 (supports Joi, Zod, ArkType, and Valibot)",
-  "main": "express-standard-schema-validation.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts",
+    "!dist/**/*.test.js.map",
+    "!dist/**/*.test.d.ts.map"
+  ],
   "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "prebuild": "rm -rf dist",
     "build-ts": "tsc --build example/typescript/tsconfig.json",
-    "test": "npm run ts-test && vitest run && npm run build-ts",
+    "test": "npm run type-check && vitest run && npm run build-ts",
     "test:watch": "vitest",
-    "test:unit": "vitest run express-standard-schema-validation.test.js --watch",
+    "test:unit": "vitest run src/*.test.ts --watch",
     "test:acceptance": "vitest run acceptance/ --watch",
-    "ts-test": "tsc express-standard-schema-validation.d.ts --target es5 --module commonjs --noEmit",
+    "type-check": "tsc --noEmit --project tsconfig.test.json",
     "coverage": "vitest run --coverage",
     "example": "node --watch example/javascript/server.js",
     "example-ts": "npm run build-ts && node example/typescript/server.js",
     "format": "prettier --write \"**/*.{js,ts,json}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{js,ts,json}\" --ignore-path .gitignore",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepublishOnly": "npm run build"
   },
-  "typings": "express-standard-schema-validation.d.ts",
-  "type": "module",
-  "files": [
-    "express-standard-schema-validation.js",
-    "express-standard-schema-validation.d.ts"
-  ],
   "keywords": [
     "standard-schema",
     "joi",
@@ -36,7 +48,7 @@
     "typescript",
     "tsc"
   ],
-  "author": "John Derr, Evan Shortiss (express-joi-validation)",
+  "author": "John Derr",
   "license": "MIT",
   "devDependencies": {
     "@types/express": "~4.0.39",
@@ -55,6 +67,7 @@
     "prettier": "~3.7.4",
     "qs": "~6.14.0",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.50.0",
     "valibot": "^1.2.0",
     "vitest": "^4.0.16",
     "zod": "^3.23.0"

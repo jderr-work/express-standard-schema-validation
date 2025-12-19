@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest';
 import Joi from 'joi';
 import { createTestApp, startTestServer, stopTestServer } from './setup.js';
 import { expectSuccess, expectValidationError, get, post } from './helpers.js';
-import { createValidator } from '../express-standard-schema-validation.js';
+import { createValidator } from '../dist/index.js';
 
 describe('express-joi-validation with Joi >= 18.0.0', () => {
   describe('Joi Standard Schema Support', () => {

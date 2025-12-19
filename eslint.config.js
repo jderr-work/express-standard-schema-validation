@@ -1,8 +1,10 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2024,
@@ -15,19 +17,23 @@ export default [
     rules: {
       // Possible errors
       'no-console': 'off', // Allow console for examples
-      'no-unused-vars': [
+      'no-unused-vars': 'off', // Turn off base rule
+      '@typescript-eslint/no-unused-vars': [
         'error',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
         },
       ],
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any for flexibility
+      '@typescript-eslint/no-namespace': 'off', // Allow namespaces for Standard Schema types
 
       // Best practices
       eqeqeq: ['error', 'always'],
       'no-var': 'error',
       'prefer-const': 'error',
-      'no-use-before-define': [
+      'no-use-before-define': 'off', // Turn off base rule
+      '@typescript-eslint/no-use-before-define': [
         'error',
         {
           functions: true,
@@ -44,6 +50,6 @@ export default [
   },
   {
     // Ignore patterns
-    ignores: ['node_modules/**', 'coverage/**', '*.config.js', 'example/typescript/*.js', '.git/**'],
+    ignores: ['node_modules/**', 'coverage/**', 'dist/**', '*.config.js', 'example/**/*.js', '.git/**'],
   },
 ];
