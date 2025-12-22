@@ -3,16 +3,16 @@ process.title = 'express-standard-schema-validation';
 const port = 8080;
 
 import express from 'express';
-import Joi from 'joi';
+import { z } from 'zod';
 import { createValidator } from '../../dist/index.js';
 import router from './router.js';
 
 const app = express();
 const validator = createValidator();
 
-const headerSchema = Joi.object({
-  host: Joi.string().required(),
-  'user-agent': Joi.string().required(),
+const headerSchema = z.looseObject({
+  host: z.string(),
+  'user-agent': z.string(),
 });
 
 app.use(validator.headers(headerSchema));

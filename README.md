@@ -382,7 +382,7 @@ app.get('/hello', validator.query(querySchema), (req: ValidatedRequest<HelloRequ
 ```ts
 const headerSchema = z.object({
   'x-api-key': z.string(),
-});
+}).looseObject();
 
 const bodySchema = z.object({
   email: z.string().email(),
