@@ -6,17 +6,19 @@ import { StandardSchemaV1 } from './types.js';
  * @returns True if the schema implements Standard Schema V1
  */
 export const isStandardSchema = (schema: unknown): schema is StandardSchemaV1 => {
+  if (!schema || (typeof schema !== 'object' && typeof schema !== 'function')) {
+    return false;
+  }
+
+  const std = (schema as any)['~standard'];
+
   return (
-    schema !== null &&
-    schema !== undefined &&
-    (typeof schema === 'object' || typeof schema === 'function') &&
-    '~standard' in schema &&
-    schema['~standard'] !== null &&
-    schema['~standard'] !== undefined &&
-    typeof schema['~standard'] === 'object' &&
-    '~standard' in schema &&
-    typeof (schema['~standard'] as any).validate === 'function' &&
-    (schema['~standard'] as any).version === 1
+    std !== null &&
+    std !== undefined &&
+    typeof std === 'object' &&
+    std.version === 1 &&
+    typeof std.vendor === 'string' &&
+    typeof std.validate === 'function'
   );
 };
 

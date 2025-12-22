@@ -16,7 +16,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const validSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ value: {} }),
         },
@@ -29,13 +29,15 @@ describe('createValidator', () => {
       const validator = createValidator();
       const schema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           // missing validate
         },
       };
 
-      expect(() => validator.query(schema)).toThrow('Invalid schema: must implement Standard Schema V1 interface.');
+      expect(() => validator.query(schema as any)).toThrow(
+        'Invalid schema: must implement Standard Schema V1 interface.',
+      );
     });
   });
 
@@ -44,9 +46,9 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
-          validate: (value) => ({
+          validate: (value: any) => ({
             value: { name: value.name.toUpperCase() },
           }),
         },
@@ -54,37 +56,37 @@ describe('createValidator', () => {
 
       const middleware = validator.query(mockSchema);
 
-      const req = { query: { name: 'john' } };
-      const res = {};
+      const req = { query: { name: 'john' } } as any;
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
 
       expect(next).toHaveBeenCalledWith();
       expect(req.query.name).toBe('JOHN');
-      expect(req.originalQuery).toEqual({ name: 'john' });
+      expect(req.originalQuery).toStrictEqual({ name: 'john' });
     });
 
     test('should preserve original query in req.originalQuery', async () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
-          validate: (value) => ({ value }),
+          validate: (value: any) => ({ value }),
         },
       };
 
       const middleware = validator.query(mockSchema);
 
       const originalQueryObject = { key: 'value' };
-      const req = { query: { ...originalQueryObject } };
-      const res = {};
+      const req = { query: { ...originalQueryObject } } as any;
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
 
-      expect(req.originalQuery).toEqual(originalQueryObject);
+      expect(req.originalQuery).toStrictEqual(originalQueryObject);
       expect(req.originalQuery).not.toBe(req.query);
     });
 
@@ -92,9 +94,9 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
-          validate: (value) => ({
+          validate: (value: any) => ({
             value: { age: parseInt(value.age, 10) },
           }),
         },
@@ -102,8 +104,8 @@ describe('createValidator', () => {
 
       const middleware = validator.query(mockSchema);
 
-      const req = { query: { age: '25' } };
-      const res = {};
+      const req = { query: { age: '25' } } as any;
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -116,16 +118,16 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
-          validate: (value) => ({ value }),
+          validate: (value: any) => ({ value }),
         },
       };
 
       const middleware = validator.query(mockSchema);
 
-      const req = { query: { name: 'john' } };
-      const res = {};
+      const req = { query: { name: 'john' } } as any;
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -140,7 +142,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -149,7 +151,7 @@ describe('createValidator', () => {
       const middleware = validator.body(mockSchema);
 
       const req = { body: { name: 'john', age: 30 } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -163,7 +165,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value: { ...value, modified: true } }),
         },
@@ -172,7 +174,7 @@ describe('createValidator', () => {
       const middleware = validator.body(mockSchema);
 
       const req = { body: { name: 'john' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -185,7 +187,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -194,7 +196,7 @@ describe('createValidator', () => {
       const middleware = validator.body(mockSchema);
 
       const req = { body: { user: { name: 'john', address: { city: 'NYC' } } } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -209,7 +211,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value: { id: parseInt(value.id, 10) } }),
         },
@@ -218,7 +220,7 @@ describe('createValidator', () => {
       const middleware = validator.params(mockSchema);
 
       const req = { params: { id: '123' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -232,7 +234,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -241,7 +243,7 @@ describe('createValidator', () => {
       const middleware = validator.params(mockSchema);
 
       const req = { params: { id: '123', name: 'test' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -253,7 +255,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({
             value: { id: Number(value.id), active: value.active === 'true' },
@@ -264,7 +266,7 @@ describe('createValidator', () => {
       const middleware = validator.params(mockSchema);
 
       const req = { params: { id: '456', active: 'true' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -279,7 +281,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -288,7 +290,7 @@ describe('createValidator', () => {
       const middleware = validator.headers(mockSchema);
 
       const req = { headers: { 'content-type': 'application/json' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -303,7 +305,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -312,7 +314,7 @@ describe('createValidator', () => {
       const middleware = validator.headers(mockSchema);
 
       const req = { headers: { host: 'localhost', 'user-agent': 'test' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -327,7 +329,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -336,7 +338,7 @@ describe('createValidator', () => {
       const middleware = validator.headers(mockSchema);
 
       const req = { headers: { 'Content-Type': 'application/json' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -350,7 +352,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -359,7 +361,7 @@ describe('createValidator', () => {
       const middleware = validator.fields(mockSchema);
 
       const req = { fields: { name: 'john', email: 'john@example.com' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -375,7 +377,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -384,7 +386,7 @@ describe('createValidator', () => {
       const middleware = validator.fields(mockSchema);
 
       const req = { fields: { username: 'johndoe' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       await middleware(req, res, next);
@@ -408,7 +410,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: (value) => ({ value }),
         },
@@ -443,7 +445,7 @@ describe('createValidator', () => {
       const validator = createValidator({ passError: true });
       mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ issues: [{ message: 'Invalid' }] }),
         },
@@ -464,7 +466,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ issues: [{ message: 'Invalid' }] }),
         },
@@ -486,7 +488,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ issues: [{ message: 'Invalid' }] }),
         },
@@ -513,7 +515,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => {
             throw new Error('Unexpected error');
@@ -543,7 +545,7 @@ describe('createValidator', () => {
         const validator = createValidator({ passError: true });
         const mockSchema = {
           '~standard': {
-            version: 1,
+            version: 1 as const,
             vendor: 'test',
             validate: () => ({ issues: [{ message: 'Invalid' }] }),
           },
@@ -574,7 +576,7 @@ describe('createValidator', () => {
         const validator = createValidator();
         const mockSchema = {
           '~standard': {
-            version: 1,
+            version: 1 as const,
             vendor: 'test',
             validate: () => ({ issues: [{ message: 'Invalid' }] }),
           },
@@ -604,7 +606,7 @@ describe('createValidator', () => {
         const validator = createValidator({ passError: false });
         const mockSchema = {
           '~standard': {
-            version: 1,
+            version: 1 as const,
             vendor: 'test',
             validate: () => ({ issues: [{ message: 'Invalid' }] }),
           },
@@ -632,7 +634,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: async (value) => {
             await new Promise((resolve) => setTimeout(resolve, 10));
@@ -644,7 +646,7 @@ describe('createValidator', () => {
       const middleware = validator.query(mockSchema);
 
       const req = { query: { name: 'john' } };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       // Call middleware and wait for next() to be called
@@ -661,7 +663,7 @@ describe('createValidator', () => {
       const validator = createValidator({ passError: true });
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: async () => {
             await new Promise((resolve) => setTimeout(resolve, 10));
@@ -673,7 +675,7 @@ describe('createValidator', () => {
       const middleware = validator.query(mockSchema);
 
       const req = { query: {} };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       // Call middleware and wait for next() to be called
@@ -694,7 +696,7 @@ describe('createValidator', () => {
       const validator = createValidator();
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: async () => {
             throw new Error('Unexpected error');
@@ -705,7 +707,7 @@ describe('createValidator', () => {
       const middleware = validator.query(mockSchema);
 
       const req = { query: {} };
-      const res = {};
+      const res = {} as any;
       const next = vi.fn();
 
       // Call middleware and wait for next() to be called
@@ -724,7 +726,7 @@ describe('createValidator', () => {
       const validator = createValidator({ statusCode: 422 });
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ issues: [{ message: 'error' }] }),
         },
@@ -748,7 +750,7 @@ describe('createValidator', () => {
       const validator = createValidator({ statusCode: 418, passError: true });
       const mockSchema = {
         '~standard': {
-          version: 1,
+          version: 1 as const,
           vendor: 'test',
           validate: () => ({ issues: [{ message: 'error' }] }),
         },
