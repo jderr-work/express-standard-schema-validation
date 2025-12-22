@@ -161,6 +161,14 @@ describe('buildErrorString', () => {
     expect(result).toBe('Error validating query: Field is required');
   });
 
+  test('should build error string using errorMessageTemplate option', () => {
+    const issues: StandardSchemaV1.Issue[] = [{ message: 'Field is required' }];
+
+    const result = buildErrorString(issues, 'query', 'Custom error message:');
+
+    expect(result).toBe('Custom error message: Field is required');
+  });
+
   test('should build error string from multiple issues', () => {
     const issues: StandardSchemaV1.Issue[] = [
       { message: 'Field is required' },
