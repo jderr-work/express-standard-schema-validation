@@ -113,6 +113,28 @@ describe('express-joi-validation with Joi >= 18.0.0', () => {
       expect(error).toContain('Error validating request body');
       await stopTestServer(testServer.server);
     });
+
+    test('should fail validation with invalid body passError: true', async () => {
+      const validator = createValidator({ passError: true });
+      const schema = Joi.object({
+        username: Joi.string().required(),
+        email: Joi.string().email().required(),
+      });
+
+      const app = createTestApp({ passError: true });
+      app.post('/test', validator.body(schema), (_req, res) => {
+        res.status(200).end('ok');
+      });
+
+      const testServer = await startTestServer(app);
+
+      const response = await post(testServer.baseUrl, '/test', {
+        username: 'john',
+        email: 'not-an-email',
+      });
+      expect(response.status).toBe(400);
+      await stopTestServer(testServer.server);
+    });
   });
 
   describe('#params validation', () => {
