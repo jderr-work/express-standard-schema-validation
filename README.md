@@ -229,6 +229,7 @@ const schema = Joi.object({
 Configure Zod schemas using Zod's built-in methods:
 
 ```js
+// v3
 const schema = z
   .object({
     name: z.string(),
@@ -236,6 +237,17 @@ const schema = z
   })
   .strict(); // Reject extra properties
 // .passthrough()         // Allow extra properties
+// .strip()               // Remove extra properties (default)
+
+// v4
+// .strictObject()    // Reject extra properties
+// .looseObject() // Allow extra properties
+const schema = z
+  .looseObject({ //
+    name: z.string(),
+    age: z.coerce.number(), // Type coercion
+  })
+
 // .strip()               // Remove extra properties (default)
 ```
 
@@ -268,11 +280,11 @@ const schema = v.object({
 
 ### Joi → Zod
 
-| Joi                                 | Zod                 |
+| Joi                                 | Zod v4              |
 | ----------------------------------- | ------------------- |
 | `Joi.number()` with `convert: true` | `z.coerce.number()` |
-| `.unknown(true)`                    | `.passthrough()`    |
-| `.unknown(false)`                   | `.strict()`         |
+| `.unknown(true)`                    | `z.looseObject`     |
+| `.unknown(false)`                   | `z.strictObject`    |
 | `.options({ stripUnknown: true })`  | Default behavior    |
 | `.options({ abortEarly: false })`   | Default behavior    |
 
@@ -382,7 +394,7 @@ app.get('/hello', validator.query(querySchema), (req: ValidatedRequest<HelloRequ
 ```ts
 const headerSchema = z.object({
   'x-api-key': z.string(),
-});
+}).looseObject();
 
 const bodySchema = z.object({
   email: z.string().email(),

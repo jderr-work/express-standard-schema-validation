@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import { z } from 'zod';
 import formidable from 'express-formidable';
 import {
   ValidatedRequest,
@@ -11,8 +11,8 @@ import { Router } from 'express';
 
 const route = Router();
 const validator = createValidator();
-const schema = Joi.object({
-  name: Joi.string().required(),
+const schema = z.object({
+  name: z.string(),
 });
 
 interface HelloGetRequestSchema extends ValidatedRequestSchema {

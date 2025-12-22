@@ -3,17 +3,17 @@
 const port = 3030;
 
 import express from 'express';
-import * as Joi from 'joi';
-import HelloWorld from './route';
+import { z } from 'zod';
+import HelloWorld from './route.js';
 import { createValidator, ExpressValidatorError } from '../../dist/index.js';
 
 const app = express();
 const validator = createValidator();
 
-const headerSchema = Joi.object({
-  host: Joi.string().required(),
-  'user-agent': Joi.string().required(),
-});
+const headerSchema = z.looseObject({
+  host: z.string(),
+  'user-agent': z.string(),
+}); // allow other headers
 
 // Validate headers for all incoming requests
 app.use(validator.headers(headerSchema));

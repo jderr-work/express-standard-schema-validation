@@ -1,6 +1,6 @@
 {
   "name": "express-standard-schema-validation",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "validate express application inputs and parameters using Standard Schema V1 (supports Joi, Zod, ArkType, and Valibot)",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -63,14 +63,12 @@
     "@types/qs": "~6.14.0",
     "@vitest/coverage-istanbul": "^4.0.16",
     "arktype": "^2.0.0-rc.8",
-    "chance": "^1.1.12",
     "coveralls": "^3.1.1",
     "eslint": "^9.39.2",
     "express": "~4.22.1",
     "express-formidable": "~1.2.0",
     "globals": "^16.5.0",
     "joi": "~18.0.2",
-    "lodash": "~4.17.15",
     "prettier": "~3.7.4",
     "qs": "~6.14.0",
     "simple-git-hooks": "^2.13.1",
@@ -78,7 +76,7 @@
     "typescript-eslint": "^8.50.0",
     "valibot": "^1.2.0",
     "vitest": "^4.0.16",
-    "zod": "^3.23.0"
+    "zod": "^4.0.0"
   },
   "peerDependencies": {
     "express": ">=4.0.0"
