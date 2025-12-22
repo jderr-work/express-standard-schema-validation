@@ -26,14 +26,18 @@ export const isStandardSchema = (schema: unknown): schema is StandardSchemaV1 =>
  * Builds an error string from Standard Schema validation issues
  * @param issues - Array of Standard Schema issues
  * @param container - The container being validated (e.g., "query", "body")
+ * @param errorStringTemplate - Optional template for formatting error messages
  * @returns Formatted error message
  */
-export const buildErrorString = (issues: ReadonlyArray<StandardSchemaV1.Issue>, container: string): string => {
-  let ret = `Error validating ${container}.`;
+export const buildErrorString = (
+  issues: ReadonlyArray<StandardSchemaV1.Issue>,
+  container: string,
+  errorStringTemplate?: string,
+): string => {
+  const prefix = errorStringTemplate || `Error validating ${container}:`;
+  if (!issues.length) return prefix;
 
-  for (let i = 0; i < issues.length; i++) {
-    ret += ` ${issues[i].message}.`;
-  }
+  const issueString = issues.map(({ message }) => message).join('. ');
 
-  return ret;
+  return `${prefix} ${issueString}`;
 };

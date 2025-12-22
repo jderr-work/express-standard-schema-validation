@@ -131,6 +131,10 @@ export interface ExpressValidatorConfig {
    * Whether to pass validation errors to Express error handler
    */
   passError?: boolean;
+  /**
+   * Template for error messages
+   */
+  errorMessageTemplate?: string;
 }
 
 /**

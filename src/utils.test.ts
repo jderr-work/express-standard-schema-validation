@@ -158,7 +158,15 @@ describe('buildErrorString', () => {
 
     const result = buildErrorString(issues, 'query');
 
-    expect(result).toBe('Error validating query. Field is required.');
+    expect(result).toBe('Error validating query: Field is required');
+  });
+
+  test('should build error string using errorMessageTemplate option', () => {
+    const issues: StandardSchemaV1.Issue[] = [{ message: 'Field is required' }];
+
+    const result = buildErrorString(issues, 'query', 'Custom error message:');
+
+    expect(result).toBe('Custom error message: Field is required');
   });
 
   test('should build error string from multiple issues', () => {
@@ -170,7 +178,7 @@ describe('buildErrorString', () => {
 
     const result = buildErrorString(issues, 'body');
 
-    expect(result).toBe('Error validating body. Field is required. Must be a number. Must be greater than 0.');
+    expect(result).toBe('Error validating body: Field is required. Must be a number. Must be greater than 0');
   });
 
   test('should handle empty issues array', () => {
@@ -178,7 +186,7 @@ describe('buildErrorString', () => {
 
     const result = buildErrorString(issues, 'params');
 
-    expect(result).toBe('Error validating params.');
+    expect(result).toBe('Error validating params:');
   });
 
   test('should handle issues with paths', () => {
@@ -191,6 +199,6 @@ describe('buildErrorString', () => {
 
     const result = buildErrorString(issues, 'body');
 
-    expect(result).toBe('Error validating body. Invalid email.');
+    expect(result).toBe('Error validating body: Invalid email');
   });
 });

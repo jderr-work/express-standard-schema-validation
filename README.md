@@ -122,6 +122,7 @@ Creates a validator instance with optional global configuration.
 
 - `config.passError` (boolean, default: `false`) - Pass validation errors to Express error handler
 - `config.statusCode` (number, default: `400`) - HTTP status code for validation failures
+- `config.errorMessageTemplate` (string, optional) - Custom prefix for error messages. Default: `"Error validating {container}:"`
 
 **Returns:** Validator instance with middleware methods
 
@@ -131,6 +132,7 @@ Creates a validator instance with optional global configuration.
 const validator = createValidator({
   passError: true,
   statusCode: 422,
+  errorMessageTemplate: 'Validation failed for',
 });
 ```
 
@@ -242,11 +244,11 @@ const schema = z
 // v4
 // .strictObject()    // Reject extra properties
 // .looseObject() // Allow extra properties
-const schema = z
-  .looseObject({ //
-    name: z.string(),
-    age: z.coerce.number(), // Type coercion
-  })
+const schema = z.looseObject({
+  //
+  name: z.string(),
+  age: z.coerce.number(), // Type coercion
+});
 
 // .strip()               // Remove extra properties (default)
 ```
@@ -315,7 +317,19 @@ By default, validation failures return HTTP 400 with error message as plain text
 ```js
 // Request: GET /hello?name=123&age=invalid
 // Response: 400 Bad Request
-// Body: Error validating request query. Expected string, received number. Age must be a number.
+// Body: Error validating request query: Expected string, received number. Age must be a number.
+```
+
+You can customize the error message prefix using `errorMessageTemplate`:
+
+```js
+const validator = createValidator({
+  errorMessageTemplate: 'Validation failed for',
+});
+
+// Request: GET /hello?name=123&age=invalid
+// Response: 400 Bad Request
+// Body: Validation failed for request query: Expected string, received number. Age must be a number.
 ```
 
 ### Custom Error Handler
@@ -392,9 +406,11 @@ app.get('/hello', validator.query(querySchema), (req: ValidatedRequest<HelloRequ
 ### Multiple Validations
 
 ```ts
-const headerSchema = z.object({
-  'x-api-key': z.string(),
-}).looseObject();
+const headerSchema = z
+  .object({
+    'x-api-key': z.string(),
+  })
+  .looseObject();
 
 const bodySchema = z.object({
   email: z.string().email(),
