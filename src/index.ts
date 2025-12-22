@@ -51,7 +51,9 @@ export const createValidator = (cfg: ExpressValidatorConfig = {}): ExpressValida
             return undefined;
           } else {
             // Return error as response
-            res.status(opts.statusCode || cfg.statusCode || 500).end(buildErrorString(result.issues, `${type} json`));
+            res
+              .status(opts.statusCode || cfg.statusCode || 500)
+              .end(buildErrorString(result.issues, `${type} json`, cfg?.errorMessageTemplate));
             return undefined;
           }
         } catch (err) {
@@ -107,7 +109,7 @@ export const createValidator = (cfg: ExpressValidatorConfig = {}): ExpressValida
               // Pass error to express error handler
               // Create an error object with validation details
               const errorObj = {
-                message: buildErrorString(result.issues, `request ${type}`),
+                message: buildErrorString(result.issues, `request ${type}`, cfg?.errorMessageTemplate),
                 details: result.issues,
               };
 
@@ -123,7 +125,7 @@ export const createValidator = (cfg: ExpressValidatorConfig = {}): ExpressValida
               // Return error as response
               res
                 .status(opts.statusCode || cfg.statusCode || 400)
-                .end(buildErrorString(result.issues, `request ${type}`));
+                .end(buildErrorString(result.issues, `request ${type}`, cfg?.errorMessageTemplate));
             }
           })
           .catch((err) => {

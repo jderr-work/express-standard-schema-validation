@@ -507,7 +507,7 @@ describe('createValidator', () => {
       await middleware(req, res, next);
       await res.json();
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockEnd).toHaveBeenCalledWith('Error validating response json. Invalid.');
+      expect(mockEnd).toHaveBeenCalledWith('Error validating response json: Invalid');
       expect(next).toHaveBeenCalledWith(); // next wasn't called because we sent response
     });
 

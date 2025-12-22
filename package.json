@@ -1,6 +1,6 @@
 {
   "name": "express-standard-schema-validation",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "validate express application inputs and parameters using Standard Schema V1 (supports Joi, Zod, ArkType, and Valibot)",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
