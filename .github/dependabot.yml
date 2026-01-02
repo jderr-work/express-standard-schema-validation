@@ -1,0 +1,8 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/" # Change this if your manifest (package.json) is in another directory
+    schedule:
+      interval: "weekly"
+      # Check for updates once a week. Options: "daily", "weekly", "monthly"
+    open-pull-requests-limit: 5
